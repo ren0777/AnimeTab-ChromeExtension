@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>AnimeTab</title>
+  <link rel='preconnect' href='https://fonts.googleapis.com'>
+  <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+  <link href='https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&family=Quicksand:wght@400;500;600;700&display=swap' rel='stylesheet'>
+  <link rel='stylesheet' href='style.css'>
+  <script src='newtab.js' defer></script>
+</head>
+<body>
+  <div class='page'>
+    <div class='wallpaper-layer' aria-hidden='true'>
+      <div class='wallpaper wallpaper-a' data-wallpaper-a></div>
+      <div class='wallpaper wallpaper-b' data-wallpaper-b></div>
+      <video class='custom-video' data-custom-video muted loop playsinline preload='metadata'></video>
+    </div>
+
+    <div class='petal-container' aria-hidden='true'>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+      <div class='petal' aria-hidden='true'></div>
+    </div>
+
+    <div class='overlay' aria-hidden='true'></div>
+
+    <main class='main-content'>
+      <section class='clock-block' aria-live='polite'>
+        <div class='clock' data-clock>00:00:00</div>
+        <div class='greeting-ja' data-greeting-ja>こんにちは</div>
+        <div class='greeting-romaji' data-greeting-romaji>Konnichiwa</div>
+      </section>
+
+      <section class='quote-card' aria-live='polite'>
+        <p class='quote-text' data-quote-text>Loading quote...</p>
+        <p class='quote-author' data-quote-author>- AnimeTab</p>
+      </section>
+
+      <section class='vibe-strip' aria-label='Anime vibe tags'>
+        <span class='vibe-pill'>LO-FI MODE</span>
+        <span class='vibe-pill'>夜の美学</span>
+        <span class='vibe-pill'>ANIME NERD CORE</span>
+      </section>
+
+      <form class='search-bar' data-search-form role='search' aria-label='Search with Google'>
+        <input class='search-input' data-search-input type='search' name='q' placeholder='Search the web...' autocomplete='off' spellcheck='false' aria-label='Search query'>
+        <button class='search-button' type='submit'>Search</button>
+      </form>
+    </main>
+
+    <button class='control-hub-toggle' data-control-hub-toggle type='button' aria-controls='control-hub-panel' aria-expanded='false'>Anime Control Hub</button>
+    <aside id='control-hub-panel' class='control-hub-panel' data-control-hub-panel>
+      <div class='control-hub-header'>
+        <div class='control-hub-title'>Control Hub</div>
+        <button class='control-hub-close' data-control-hub-close type='button' aria-label='Close control hub'>×</button>
+      </div>
+
+      <section class='custom-media-card' aria-live='polite'>
+        <div class='custom-media-title'>Custom Background</div>
+        <p class='custom-media-status' data-custom-media-status>Using built-in wallpaper rotation.</p>
+        <div class='custom-media-actions'>
+          <button class='custom-media-button' data-custom-upload type='button'>Upload Photo/GIF/Video</button>
+          <button class='custom-media-button is-secondary' data-custom-reset type='button'>Use Built-In Wallpapers</button>
+        </div>
+        <input class='custom-media-input' data-custom-input type='file' accept='image/*,video/*'>
+      </section>
+
+      <section class='lofi-card' aria-live='polite'>
+        <div class='lofi-header'>
+          <div class='lofi-title'>Lo-fi Music</div>
+          <div class='lofi-subtitle' data-lofi-status>Ready</div>
+        </div>
+        <div class='lofi-controls'>
+          <button class='lofi-button' data-lofi-toggle type='button'>Play</button>
+          <button class='lofi-button is-secondary' data-lofi-mute type='button'>Mute</button>
+          <label class='lofi-volume-wrap' for='lofi-volume'>Volume</label>
+          <input id='lofi-volume' class='lofi-volume' data-lofi-volume type='range' min='0' max='100' value='35'>
+        </div>
+        <div class='lofi-url-row'>
+          <input class='lofi-url-input' data-lofi-url type='url' placeholder='Paste lo-fi stream URL (https://...)'>
+          <button class='lofi-button' data-lofi-save-url type='button'>Set Stream</button>
+        </div>
+        <audio data-lofi-audio preload='none' crossorigin='anonymous'></audio>
+      </section>
+    </aside>
+
+    <aside class='featured-card' data-featured-card>
+      <div class='featured-content'>
+        <img class='featured-thumb' src='assets/icon48.png' alt='AnimeTab icon' loading='lazy' width='28' height='28'>
+        <a class='featured-link' href='https://animetab.example.com' target='_blank' rel='noopener noreferrer' data-featured-link>🛒 Anime Merch → animetab.example.com</a>
+        <button class='featured-dismiss' type='button' aria-label='Dismiss featured card' data-featured-dismiss>×</button>
+      </div>
+    </aside>
+  </div>
+
+  <noscript>
+    <div class='noscript'>JavaScript is required for AnimeTab features like clock, quotes, and wallpaper rotation.</div>
+  </noscript>
+</body>
+</html>

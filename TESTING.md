@@ -1,0 +1,44 @@
+# AnimeTab Manual Testing Checklist
+
+Use this checklist before packaging or publishing.
+
+- [ ] Extension installs without console errors. Pass if no red errors appear in `chrome://extensions` service worker or new tab DevTools; verify by opening DevTools immediately after load.
+- [ ] New tab override is active. Pass if opening a new tab renders AnimeTab instead of default Chrome page; verify with Ctrl+T.
+- [ ] Manifest permissions are minimal. Pass if install prompt shows only storage-related usage and no suspicious warnings; verify from extension details.
+- [ ] Clock displays in `HH:MM:SS` 24-hour format. Pass if seconds are visible and no AM/PM marker appears; verify visual format.
+- [ ] Clock updates every second. Pass if time increments continuously each second; observe for 10+ seconds.
+- [ ] Morning greeting boundary works. Pass if 05:00-11:59 shows `おはようございます` and `Ohayou gozaimasu`; mock system time.
+- [ ] Afternoon greeting boundary works. Pass if 12:00-17:59 shows `こんにちは` and `Konnichiwa`; mock system time.
+- [ ] Evening greeting boundary works. Pass if 18:00-22:59 shows `こんばんは` and `Konbanwa`; mock system time.
+- [ ] Night greeting boundary works. Pass if 23:00-04:59 shows `おやすみなさい` and `Oyasumi nasai`; mock system time.
+- [ ] First wallpaper appears on load. Pass if a wallpaper is visible without flashing blank background; reload multiple times.
+- [ ] Wallpaper index persists across tabs. Pass if opening a second new tab shows same current wallpaper state; compare two tabs.
+- [ ] Wallpaper rotates every 5 minutes. Pass if wallpaper changes after 300 seconds; verify using stopwatch.
+- [ ] Wallpaper crossfade is smooth. Pass if transition fades between layers without abrupt swap; watch at rotation moment.
+- [ ] Wallpaper fallback handles 404. Pass if broken `bgN.webp` triggers automatic switch to next wallpaper; temporarily rename one file.
+- [ ] Quote loads from `quotes.json`. Pass if quote text and author render in card; inspect UI and network file load.
+- [ ] Daily quote is deterministic same day. Pass if multiple tabs opened today show identical quote; open 3 tabs.
+- [ ] Daily quote changes next day. Pass if day-of-year change picks a different quote; test by temporarily mocking `Date` in DevTools snippets.
+- [ ] Quote fallback works when file missing. Pass if default hardcoded quote appears when `quotes.json` is unavailable; temporarily rename file.
+- [ ] Search submit redirects to Google query URL. Pass if clicking Search opens Google results with encoded query string.
+- [ ] Enter key submits search form. Pass if pressing Enter in input performs same redirect as button click.
+- [ ] Search input auto-focuses on load. Pass if cursor appears in search field within ~300ms after new tab opens.
+- [ ] Search input clears after submit. Pass if input is empty before navigation completes or when returning via back.
+- [ ] Featured card displays by default. Pass if card appears bottom-right on fresh profile.
+- [ ] Featured card dismiss hides it instantly. Pass if clicking `×` hides card without reload.
+- [ ] Featured dismiss persists after restart. Pass if card remains hidden after closing/reopening Chrome.
+- [ ] Offline mode still works. Pass if extension renders clock, greeting, saved wallpaper, and quote without internet; disable network.
+- [ ] Sakura petals animate smoothly. Pass if 20 petals float with no major jank at 60fps on typical hardware.
+- [ ] Text readability is consistent. Pass if clock, greeting, and quote remain readable on bright/dark wallpapers due to overlay.
+- [ ] Responsive layout on 1366x768. Pass if no overlap/cutoff in laptop viewport; test with DevTools responsive mode.
+- [ ] Responsive layout on 1920x1080. Pass if centered composition and spacing look balanced on desktop.
+- [ ] Responsive layout on 2560x1440. Pass if UI scales cleanly and cards remain legible on high resolution.
+- [ ] Storage footprint under 5 KB. Pass if `chrome.storage.local` total stays minimal; inspect stored keys in extension storage.
+- [ ] No memory leak from intervals. Pass if one tab maintains stable performance and no duplicate timers after reload; verify with Performance tools.
+- [ ] No uncaught promise rejections. Pass if DevTools console has no unhandled rejection entries during load and interactions.
+- [ ] Chrome Web Store policy readiness. Pass if privacy statement, minimal permissions, and non-infringing assets are present for review.
+- [ ] Custom image upload works. Pass if selecting a local JPG/PNG updates the background immediately.
+- [ ] Custom GIF upload works. Pass if selecting a local GIF shows animated background behavior.
+- [ ] Custom video upload works. Pass if selecting MP4/WebM plays as fullscreen background behind overlay.
+- [ ] Custom background persists across new tabs. Pass if uploaded media appears after closing/opening new tab again.
+- [ ] Reset to built-in wallpapers works. Pass if clicking reset restores wallpaper rotation and disables custom media.
