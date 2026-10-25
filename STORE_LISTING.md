@@ -1,71 +1,30 @@
-# Chrome Web Store Listing - AnimeTab
+# AnimeTab — Chrome Web Store Listing
 
-## Short Description
+**Name:** AnimeTab
 
-Anime-inspired new tab with rotating wallpapers, clock, Japanese greetings, and daily motivational quotes.
+**Short description:**
+Beautiful anime wallpapers, quotes, edit-mode quick links and airing countdowns on every new tab.
 
-Character count: 104 (under 132 characters)
+**Category:** New Tab Apps · **Language:** English
 
-## Full Description
+**Detailed description:**
+Turn every new tab into a small anime moment:
 
-AnimeTab transforms every new tab into a calm anime-inspired space built for focus and inspiration. Instead of a blank default page, you get rotating wallpapers, a live clock, Japanese greetings, and a daily quote that refreshes deterministically each day.
+- 🌸 Rotating anime wallpapers (with bundled offline fallbacks) — shuffle or pin your favorite
+- ✨ Wano/LoFi/Cute/Romantic/Fighting mood themes, auto-matched to your wallpaper
+- 🕒 Elegant clock with Japanese greetings, 12/24-hour format
+- 🔍 Web search with engine picker — Google, DuckDuckGo, YouTube, AniList
+- ⚡ Quick links you can edit: add, remove and reorder your daily sites
+- ✧ Word of the Day — a deterministic anime-style daily quote
+- ⏱ Airing Soon — upcoming episodes for the currently popular season (AniList)
+- 🛍️ A curated merch card with a clear affiliate disclosure
 
-Whether you are personalizing your browser or creating a productivity ritual, AnimeTab is a lightweight and privacy-first anime new tab experience that works smoothly offline.
+Privacy-first: no account, no tracking scripts, no data leaves your device. Wallpapers and airing data come from public APIs; usage stats are stored and shown to you locally only.
 
-### Key Features
+**Screenshots (1280×800):** dashboard with quote + links, Wallpaper Studio open, merch card.
+**Icons:** assets/icon16/48/128.png (replace placeholder art with production art before submission).
 
-- Beautiful anime wallpaper extension experience with full-screen rotating backgrounds.
-- Live 24-hour clock and contextual Japanese greeting with romaji translation.
-- Daily motivational quote card with a deterministic quote schedule.
-- Elegant glassmorphism layout designed for readability across bright and dark wallpapers.
-- Built-in search bar for quick Google searches from your new tab.
-- Dismissable featured card with persistent preference storage.
-- Offline-first architecture with no backend services.
-
-AnimeTab is ideal if you want a Chrome anime theme that is minimal, aesthetic, and practical. It also doubles as an anime clock extension by centering time and greeting in a clean visual hierarchy.
-
-### Privacy and Data Use
-
-AnimeTab does not collect personal data, does not track browsing behavior, and does not send analytics to third parties.
-
-The extension only stores two local preference values in `chrome.storage.local`:
-
-- Current wallpaper index
-- Featured card dismissed state
-
-No account is required, and no external telemetry is included.
-
-### Add Your Own Wallpapers
-
-You can customize your new tab override anime style by adding your own images:
-
-1. Prepare 15 WebP wallpapers (`bg1.webp` to `bg15.webp`).
-2. Keep each image at least 1920x1080.
-3. Compress each file under 500 KB.
-4. Place files inside `assets/wallpapers/`.
-
-This gives you full control over your visual theme while keeping extension performance fast.
-
-### Why AnimeTab
-
-If you searched for anime new tab, anime wallpaper extension, Chrome anime theme, anime clock extension, or new tab override anime, AnimeTab is built for exactly that use case: polished design, useful functionality, and strict privacy by default.
-
-## Screenshot Descriptions
-
-1. Screenshot 1: Full new tab view with sakura wallpaper, centered clock, morning Japanese greeting, and daily quote card.
-2. Screenshot 2: Search flow with user typing a query in the glass-style search bar beneath the clock.
-3. Screenshot 3: Evening wallpaper state showing smooth crossfade aesthetic, glowing clock text, and floating sakura petals.
-4. Screenshot 4: Featured card in bottom-right corner with dismiss button visible and overall responsive layout.
-5. Screenshot 5: Side-by-side style capture showing desktop and laptop viewport responsiveness with readable text overlay.
-
-## Category
-
-Lifestyle
-
-## Language
-
-English
-
-## Tags
-
-anime, new tab, wallpaper, clock, quotes
+**Permissions justification:**
+- `storage`: to save your local preferences (theme, links, clock format, custom backgrounds)
+- `https://nekos.best/*`: to load random anime wallpapers
+- `https://graphql.anilist.co/*`: to show the airing schedule

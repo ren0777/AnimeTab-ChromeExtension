@@ -1,25 +1,52 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SearchBar from './SearchBar';
+import QuickLinks from './QuickLinks';
+import AiringCard from './AiringCard';
+import { formatTime, greetingAt } from '../lib/clock.mjs';
+import { storageGet, storageSet } from '../lib/platform.mjs';
+import { createAnalytics } from '../lib/analytics.mjs';
+import './StudioPanel.css';
 import './WanoArcDashboard.css';
 
+const CLOCK_KEY = 'clockFormat';
+
+const themeOptions = [
+  { value: 'wano', label: 'Wano' },
+  { value: 'lofi', label: 'LoFi' },
+  { value: 'cute', label: 'Cute' },
+  { value: 'romantic', label: 'Romantic' },
+  { value: 'fighting', label: 'Fighting' }
+];
+
 const WanoArcDashboard = ({
-  onSearch,
   customEnabled,
+  isPinned,
   onUploadCustom,
   onRemoveCustom,
-  wallpaperUrl,
+  onShuffle,
+  onPin,
   themeMode,
-  onThemeChange
+  onThemeChange,
+  analytics = createAnalytics({ get: async () => ({}), set: async () => ({}) })
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [quote, setQuote] = useState({ text: '', author: '' });
-  const [searchQuery, setSearchQuery] = useState('');
-  const fileInputRef = useRef(null);
+  const [hour12, setHour12] = useState(false);
   const [showStudio, setShowStudio] = useState(false);
+  const [studioMetrics, setStudioMetrics] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const stored = (await storageGet([CLOCK_KEY]))[CLOCK_KEY];
+      setHour12(stored === '12');
+    })();
   }, []);
 
   useEffect(() => {
@@ -35,7 +62,7 @@ const WanoArcDashboard = ({
         setQuote(quotes[dayOfYear % quotes.length]);
       } catch {
         setQuote({
-          text: 'If you don\'t take risks, you can\'t create a future.',
+          text: "If you don't take risks, you can't create a future.",
           author: 'Monkey D. Luffy'
         });
       }
@@ -43,67 +70,29 @@ const WanoArcDashboard = ({
     loadQuote();
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      if (onSearch) onSearch(searchQuery);
-      else window.location.href = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-    }
+  const setClockFormat = async (value) => {
+    const use12 = value === '12';
+    setHour12(use12);
+    await storageSet({ [CLOCK_KEY]: value });
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     e.target.value = '';
-    if (file && onUploadCustom) {
-      const lowerName = (file.name || '').toLowerCase();
-      if (onThemeChange) {
-        if (lowerName.includes('lofi')) onThemeChange('lofi');
-        else if (lowerName.includes('cute')) onThemeChange('cute');
-        else if (lowerName.includes('romance') || lowerName.includes('romantic')) onThemeChange('romantic');
-        else if (lowerName.includes('fight') || lowerName.includes('battle')) onThemeChange('fighting');
-      }
-      onUploadCustom(file);
-    }
+    if (file && onUploadCustom) onUploadCustom(file);
   };
 
-  const themeOptions = [
-    { value: 'wano', label: 'Wano' },
-    { value: 'lofi', label: 'LoFi' },
-    { value: 'cute', label: 'Cute' },
-    { value: 'romantic', label: 'Romantic' },
-    { value: 'fighting', label: 'Fighting' }
-  ];
-
-  const quickLinks = [
-    { id: 1, name: 'Crunchyroll', url: 'https://crunchyroll.com', icon: '📺', color: 'from-orange-500 to-red-500' },
-    { id: 2, name: 'Netflix', url: 'https://netflix.com', icon: '🎬', color: 'from-red-600 to-red-800' },
-    { id: 3, name: 'MyAnimeList', url: 'https://myanimelist.net', icon: '📋', color: 'from-blue-500 to-indigo-600' },
-    { id: 4, name: 'AniList', url: 'https://anilist.co', icon: '📊', color: 'from-blue-400 to-cyan-500' },
-    { id: 5, name: 'YouTube', url: 'https://youtube.com', icon: '▶️', color: 'from-red-500 to-pink-600' },
-    { id: 6, name: 'Twitter', url: 'https://x.com', icon: '🐦', color: 'from-sky-400 to-blue-500' },
-    { id: 7, name: 'Reddit', url: 'https://reddit.com/r/anime', icon: '🔗', color: 'from-orange-600 to-amber-600' },
-    { id: 8, name: 'Discord', url: 'https://discord.com', icon: '💬', color: 'from-indigo-500 to-purple-600' },
-  ];
-
-  const formatTime = (date) => date.toLocaleTimeString('en-GB', { hour12: false });
-
-  const getGreeting = () => {
-    const hour = currentTime.getHours();
-    if (hour < 12) return { ja: 'おはよう', romaji: 'Ohayou' };
-    if (hour < 17) return { ja: 'こんにちは', romaji: 'Konnichiwa' };
-    if (hour < 21) return { ja: 'こんばんは', romaji: 'Konbanwa' };
-    return { ja: 'おやすみ', romaji: 'Oyasumi' };
+  const openStudio = async () => {
+    setShowStudio((s) => !s);
+    if (analytics) setStudioMetrics(await analytics.snapshot());
   };
 
-  const greeting = getGreeting();
-
-  const openWallpaperPicker = () => {
-    fileInputRef.current?.click();
-  };
+  const theme = themeMode || 'wano';
+  const greeting = greetingAt(currentTime.getHours());
 
   return (
-    <div className="wano-dashboard" data-theme={themeMode || 'wano'}>
-      { (themeMode || 'wano') === 'wano' && (
+    <div className="wano-dashboard" data-theme={theme}>
+      {theme === 'wano' && (
         <motion.div
           className="wano-bg"
           initial={{ opacity: 0 }}
@@ -119,7 +108,7 @@ const WanoArcDashboard = ({
           <div className="sakura-petal" style={{ left: '70%', animationDelay: '1s' }} />
           <div className="sakura-petal" style={{ left: '90%', animationDelay: '3s' }} />
         </motion.div>
-      ) }
+      )}
 
       <div className="wano-container">
         <motion.header
@@ -140,7 +129,7 @@ const WanoArcDashboard = ({
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 1, delay: 0.4, type: 'spring', stiffness: 100 }}
         >
-          <div className="clock-text">{formatTime(currentTime)}</div>
+          <div className="clock-text">{formatTime(currentTime, { hour12 })}</div>
           <div className="clock-date">
             {currentTime.toLocaleDateString('en-US', {
               weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -148,27 +137,16 @@ const WanoArcDashboard = ({
           </div>
         </motion.div>
 
-        <motion.form
-          className="search-container"
-          onSubmit={handleSearch}
+        <motion.div
+          className="search-slot"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          <div className="search-input-wrapper">
-            <span className="search-icon">🔍</span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search the web..."
-              className="search-input"
-              aria-label="Search query"
-            />
-          </div>
-        </motion.form>
+          <SearchBar />
+        </motion.div>
 
-        {/* Compact corner studio: hidden by default, minimal overlay when opened */}
+        {/* Wallpaper Studio */}
         <input
           ref={fileInputRef}
           type="file"
@@ -176,91 +154,79 @@ const WanoArcDashboard = ({
           onChange={handleFileUpload}
           style={{ display: 'none' }}
         />
-        <div>
-          <button
-            aria-label="Open Wallpaper Studio"
-            className="corner-studio-btn"
-            onClick={() => setShowStudio((s) => !s)}
-            style={{
-              position: 'fixed', top: 16, right: 16, zIndex: 800, borderRadius: 8,
-              padding: '8px 12px', background: 'linear-gradient(90deg,#ff8a65,#ff6b8a)', color: '#fff', border: 'none', boxShadow: '0 6px 20px rgba(0,0,0,0.4)'
-            }}
-          >
-            🖼 Wallpaper
-          </button>
+        <button
+          aria-label="Open Wallpaper Studio"
+          aria-expanded={showStudio}
+          className="corner-studio-btn"
+          onClick={openStudio}
+        >
+          🖼 Wallpaper
+        </button>
 
-          {showStudio && (
-            <div
-              role="dialog"
-              aria-label="Wallpaper studio"
-              className="corner-studio-panel"
-              style={{
-                position: 'fixed', top: 64, right: 16, zIndex: 801, width: 320, padding: 12,
-                background: 'rgba(12,12,18,0.9)', borderRadius: 10, boxShadow: '0 10px 30px rgba(0,0,0,0.6)'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <strong style={{ color: '#fff' }}>Wallpaper Studio</strong>
-                <button aria-label="Close studio" onClick={() => setShowStudio(false)} style={{ background: 'transparent', border: 'none', color: '#fff' }}>✕</button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {showStudio && (
+          <div role="dialog" aria-label="Wallpaper studio" className="corner-studio-panel">
+            <div className="studio-head">
+              <strong>Wallpaper Studio</strong>
+              <button aria-label="Close studio" onClick={() => setShowStudio(false)}>✕</button>
+            </div>
+            <div className="studio-grid">
+              <button type="button" className="wallpaper-btn" onClick={() => fileInputRef.current?.click()}>
+                Choose Wallpaper…
+              </button>
+              <div className="studio-pair">
+                <button type="button" className="wallpaper-btn" onClick={onShuffle} title="Fetch a new random wallpaper">
+                  🎲 Shuffle
+                </button>
                 <button
                   type="button"
-                  className="wallpaper-btn"
-                  onClick={() => fileInputRef.current?.click()}
+                  className={`wallpaper-btn ${isPinned ? 'danger' : ''}`}
+                  onClick={() => onPin && onPin(!isPinned)}
+                  title={isPinned ? 'Unpin and go back to random' : 'Keep this wallpaper'}
                 >
-                  Choose Wallpaper
+                  {isPinned ? '📌 Unpin' : '📌 Pin'}
                 </button>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <label style={{ color: '#ddd', minWidth: 48 }}>Mood</label>
-                  <select
-                    className="theme-select"
-                    value={themeMode || 'wano'}
-                    onChange={(e) => onThemeChange && onThemeChange(e.target.value)}
-                  >
-                    {themeOptions.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
-                </div>
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between' }}>
-                  {customEnabled && onRemoveCustom && (
-                    <button type="button" className="wallpaper-btn danger" onClick={onRemoveCustom}>Reset</button>
-                  )}
-                </div>
               </div>
+              <div className="studio-row">
+                <label className="studio-label" htmlFor="studio-mood">Mood</label>
+                <select
+                  id="studio-mood"
+                  className="studio-select"
+                  value={theme}
+                  onChange={(e) => onThemeChange && onThemeChange(e.target.value)}
+                >
+                  {themeOptions.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+              </div>
+              <div className="studio-row">
+                <label className="studio-label" htmlFor="studio-clock">Clock</label>
+                <select
+                  id="studio-clock"
+                  className="studio-select"
+                  value={hour12 ? '12' : '24'}
+                  onChange={(e) => setClockFormat(e.target.value)}
+                >
+                  <option value="24">24-hour</option>
+                  <option value="12">12-hour</option>
+                </select>
+              </div>
+              {customEnabled && onRemoveCustom && (
+                <button type="button" className="wallpaper-btn danger" onClick={onRemoveCustom}>
+                  Reset to wallpapers
+                </button>
+              )}
+              {studioMetrics && (
+                <div className="studio-metrics">
+                  <strong>Your week (local only):</strong><br />
+                  {studioMetrics.weekTotal || 0} fresh tabs ·
+                  {' '}{studioMetrics.week?.affiliate_clicks || 0} merch clicks ·
+                  {' '}{studioMetrics.week?.wallpaper_upload || 0} uploads
+                </div>
+              )}
             </div>
-          )}
-        </div>
-
-        <motion.section
-          className="quick-links-section"
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-        >
-          <h2 className="section-title">Quick Links</h2>
-          <div className="quick-links-grid">
-            {quickLinks.map((link) => (
-              <motion.a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`quick-link-card bg-gradient-to-br ${link.color}`}
-                initial={{ scale: 0, rotate: -10 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{
-                  delay: 0.8 + (link.id - 1) * 0.05,
-                  type: 'spring', stiffness: 260, damping: 20
-                }}
-                whileHover={{ scale: 1.05, rotate: 2, transition: { duration: 0.2 } }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="link-icon">{link.icon}</div>
-                <div className="link-name">{link.name}</div>
-              </motion.a>
-            ))}
           </div>
-        </motion.section>
+        )}
+
+        <QuickLinks analytics={analytics} />
 
         <motion.section
           className="quote-section"
@@ -289,7 +255,13 @@ const WanoArcDashboard = ({
           </div>
         </motion.section>
 
-        {/* Premium upsell removed per request */}
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.15 }}
+        >
+          <AiringCard />
+        </motion.div>
       </div>
 
       <motion.div
@@ -302,7 +274,7 @@ const WanoArcDashboard = ({
           <button
             type="button"
             className="wallpaper-btn"
-            onClick={openWallpaperPicker}
+            onClick={() => fileInputRef.current?.click()}
             title="Upload custom wallpaper"
           >
             🖼️ Change Wallpaper
@@ -331,13 +303,13 @@ const WanoArcDashboard = ({
         </div>
       </motion.div>
 
-      { (themeMode || 'wano') === 'wano' && (
+      {theme === 'wano' && (
         <>
           <div className="kanji-watermark w1">和</div>
           <div className="kanji-watermark w2">野</div>
           <div className="kanji-watermark w3">名</div>
         </>
-      ) }
+      )}
     </div>
   );
 };

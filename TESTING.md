@@ -1,53 +1,40 @@
-# AnimeTab Manual Testing Checklist
+# AnimeTab v1.2.0 — QA Checklist
 
-Use this checklist before packaging or publishing.
+## Load
 
-- [ ] Extension installs without console errors. Pass if no red errors appear in `chrome://extensions` service worker or new tab DevTools; verify by opening DevTools immediately after load.
-- [ ] New tab override is active. Pass if opening a new tab renders AnimeTab instead of default Chrome page; verify with Ctrl+T.
-- [ ] Manifest permissions are minimal. Pass if install prompt shows only storage-related usage and no suspicious warnings; verify from extension details.
-- [ ] Clock displays in `HH:MM:SS` 24-hour format. Pass if seconds are visible and no AM/PM marker appears; verify visual format.
-- [ ] Clock updates every second. Pass if time increments continuously each second; observe for 10+ seconds.
-- [ ] Morning greeting boundary works. Pass if 05:00-11:59 shows `おはようございます` and `Ohayou gozaimasu`; mock system time.
-- [ ] Afternoon greeting boundary works. Pass if 12:00-17:59 shows `こんにちは` and `Konnichiwa`; mock system time.
-- [ ] Evening greeting boundary works. Pass if 18:00-22:59 shows `こんばんは` and `Konbanwa`; mock system time.
-- [ ] Night greeting boundary works. Pass if 23:00-04:59 shows `おやすみなさい` and `Oyasumi nasai`; mock system time.
-- [ ] First wallpaper appears on load. Pass if a wallpaper is visible without flashing blank background; reload multiple times.
-- [ ] Wallpaper index persists across tabs. Pass if opening a second new tab shows same current wallpaper state; compare two tabs.
-- [ ] Wallpaper rotates every 5 minutes. Pass if wallpaper changes after 300 seconds; verify using stopwatch.
-- [ ] Wallpaper crossfade is smooth. Pass if transition fades between layers without abrupt swap; watch at rotation moment.
-- [ ] Wallpaper fallback handles 404. Pass if broken `bgN.webp` triggers automatic switch to next wallpaper; temporarily rename one file.
-- [ ] Quote loads from `quotes.json`. Pass if quote text and author render in card; inspect UI and network file load.
-- [ ] Daily quote is deterministic same day. Pass if multiple tabs opened today show identical quote; open 3 tabs.
-- [ ] Daily quote changes next day. Pass if day-of-year change picks a different quote; test by temporarily mocking `Date` in DevTools snippets.
-- [ ] Quote fallback works when file missing. Pass if default hardcoded quote appears when `quotes.json` is unavailable; temporarily rename file.
-- [ ] Search submit redirects to Google query URL. Pass if clicking Search opens Google results with encoded query string.
-- [ ] Enter key submits search form. Pass if pressing Enter in input performs same redirect as button click.
-- [ ] Search input auto-focuses on load. Pass if cursor appears in search field within ~300ms after new tab opens.
-- [ ] Search input clears after submit. Pass if input is empty before navigation completes or when returning via back.
-- [ ] Featured card displays by default. Pass if card appears bottom-right on fresh profile.
-- [ ] Featured card dismiss hides it instantly. Pass if clicking `×` hides card without reload.
-- [ ] Featured dismiss persists after restart. Pass if card remains hidden after closing/reopening Chrome.
-- [ ] Offline mode still works. Pass if extension renders clock, greeting, saved wallpaper, and quote without internet; disable network.
-- [ ] Sakura petals animate smoothly. Pass if 20 petals float with no major jank at 60fps on typical hardware.
-- [ ] Text readability is consistent. Pass if clock, greeting, and quote remain readable on bright/dark wallpapers due to overlay.
-- [ ] Responsive layout on 1366x768. Pass if no overlap/cutoff in laptop viewport; test with DevTools responsive mode.
-- [ ] Responsive layout on 1920x1080. Pass if centered composition and spacing look balanced on desktop.
-- [ ] Responsive layout on 2560x1440. Pass if UI scales cleanly and cards remain legible on high resolution.
-- [ ] Storage footprint under 5 KB. Pass if `chrome.storage.local` total stays minimal; inspect stored keys in extension storage.
-- [ ] No memory leak from intervals. Pass if one tab maintains stable performance and no duplicate timers after reload; verify with Performance tools.
-- [ ] No uncaught promise rejections. Pass if DevTools console has no unhandled rejection entries during load and interactions.
-- [ ] Chrome Web Store policy readiness. Pass if privacy statement, minimal permissions, and non-infringing assets are present for review.
-- [ ] Custom image upload works. Pass if selecting a local JPG/PNG updates the background immediately.
-- [ ] Custom GIF upload works. Pass if selecting a local GIF shows animated background behavior.
-- [ ] Custom video upload works. Pass if selecting MP4/WebM plays as fullscreen background behind overlay.
-- [ ] Custom background persists across new tabs. Pass if uploaded media appears after closing/opening new tab again.
-- [ ] Reset to built-in wallpapers works. Pass if clicking reset restores wallpaper rotation and disables custom media.
-- [ ] Control Hub keeps center clean. Pass if wallpaper, clock, quote, and search remain unobstructed while controls stay in corner panel.
-- [ ] Invite share buttons work. Pass if each share method opens/copies as expected and status text updates.
-- [ ] Referral rewards unlock at milestones. Pass if invite count milestones (3/5/10) unlock expected visual perks and labels switch to unlocked.
-- [ ] Setup export creates valid code. Pass if export writes encoded text and copies to clipboard.
-- [ ] Setup import applies friend config. Pass if valid code updates lo-fi URL/volume, ambient mode, and unlocked reward visuals.
-- [ ] Daily streak behavior works. Pass if first open sets streak, next-day open increments streak, and skipped day resets.
-- [ ] Focus timer starts and stops cleanly. Pass if timer counts down from 25:00 and reset works without duplicate timers.
-- [ ] Ambient sound mode switching works. Pass if rain/cafe/vinyl play on select and none stops playback.
-- [ ] Growth snapshot increments correctly. Pass if invite/share/export/reward counters update after interactions and persist after reload.
+- [ ] `npm run build` then load `animetab/` unpacked (`chrome://extensions`)
+- [ ] New tab opens without a blank flash; no red console errors (F12)
+
+## Wallpaper & themes
+
+- [ ] Tabs open with a random wallpaper (or bundled fallback if offline)
+- [ ] Wallpaper Studio: Shuffle fetches a new image; Pin keeps the same image across tabs; Unpin restores random
+- [ ] Upload an image (and a video); Reload tab → custom background returns; Reset reverts
+- [ ] Mood picker changes palette; light wallpaper auto-lands on Cute, dark on LoFi (new fetches only)
+
+## Clock, search, quote
+
+- [ ] Clock shows 24h by default; switch to 12h in Studio, reload → format persists
+- [ ] Search bar is focused on page load; Enter navigates to the selected engine
+- [ ] Engine picker (Google/DDG/YouTube/AniList) persists after reload
+- [ ] Quote stays the same all day; changes the next day
+
+## Quick links
+
+- [ ] Edit → reorder ↑/↓, add a link without scheme (`example.com`), remove one; reload → order persists
+- [ ] Favicons render; a link without favicon shows an emoji fallback
+
+## Airing card
+
+- [ ] Shows up to 5 upcoming episodes with relative countdowns; hides if API unreachable
+
+## Merch & analytics
+
+- [ ] Merch card bottom-left, rotates hourly + manual →; links always amazon.com, with `&tag=` once configured
+- [ ] Clicking a product opens a new tab; counters visible in Studio metrics line increase accordingly
+- [ ] Stats line shows only local counters; check DevTools → Network shows no analytics beacons
+
+## Packaging
+
+- [ ] `npm run package` → `release/animetab-v1.2.0.zip` (~1.6 MB), contains manifest/newtab/dist/assets only
+- [ ] zip loads unpacked (rename to .crx not required) and behaves identically

@@ -1,71 +1,34 @@
 # AnimeTab
 
-AnimeTab is a Manifest V3 Chrome extension that replaces your default new tab with an anime-inspired dashboard featuring rotating wallpapers, a live 24-hour clock, Japanese greetings, and a deterministic daily quote. It also lets you upload your own photo, GIF, or video as a persistent custom background. It runs fully client-side with no backend services and keeps data local for a privacy-first experience.
+AnimeTab is a Manifest V3 Chrome extension that turns your new tab into an anime dashboard: rotating wallpapers (nekos.best with bundled fallbacks), a live clock with Japanese greetings, a daily quote, an editable quick-link grid, an "Airing Soon" countdown from the AniList API, and a curated affiliate merch card.
 
-## Growth Features (Word of Mouth)
+Everything runs client-side. User data stays local: preferences and anonymous feature counters live in `chrome.storage.local`; uploaded backgrounds live in the extension's IndexedDB.
 
-- **Invite Friends Hub** in the corner control panel with one-tap sharing for copy link, Discord, WhatsApp, Telegram, and X.
-- **Referral Rewards** unlock visual perks at 3/5/10 invite actions (neon rain overlay, night-drive quote mode, hologram clock skin).
-- **Share My Setup** export/import setup code so friends can instantly clone your vibe.
-- **Habit Loop** includes daily streak tracking, 25-minute focus timer, and ambient mode (rain/cafe/vinyl).
-- **Local Growth Snapshot** shows invite/share/export/reward counts to track momentum without external analytics.
+## Features
 
-## Add Wallpapers
+- **Wallpapers** – random from the nekos.best API via the background service worker; shuffle or pin the current image from the Wallpaper Studio; upload your own image/video (kept in IndexedDB).
+- **Mood themes** – Wano / LoFi / Cute / Romantic / Fighting; auto-detected from each wallpaper's palette (light-pastel → Cute, dark-vibrant → LoFi) or set manually.
+- **Clock & greeting** – 24h or 12h format, hourly Japanese greeting (おはよう / こんにちは / こんばんは / おやすみ).
+- **Search bar** – engine picker (Google, DuckDuckGo, YouTube, AniList), autofocus, persists your choice.
+- **Quick Links** – add / remove / reorder tiles; favicons fetched from Google's favicon service; custom links persist locally.
+- **Word of the Day** – deterministic daily quote from `quotes.json`.
+- **Airing Soon** – next scheduled episodes for the current AniList season, cached 6 hours in the background worker.
+- **Merch card** – hourly auto-rotation plus manual "→"; disclosure shown on the card; opens Amazon in a new tab only on click.
+- **Local metrics** – anonymous counters (fresh tabs, merch clicks, uploads) visible in the Wallpaper Studio. No third-party analytics; no network telemetry.
 
-- Format: WebP
-- Minimum resolution: 1920x1080
-- Recommended maximum size: 500 KB each
-- File names must be `bg1.webp` through `bg15.webp`
-- Place all files in `assets/wallpapers/`
+## Monetization setup
 
-If any wallpaper is missing or fails to load, AnimeTab automatically cycles to the next available file.
+`merch.json` contains `affiliateTag: ""`. Add your Amazon Associates tag there — links then get `&tag=<your-tag>` appended (links work without it). The affiliate disclosure is embedded in the card and covered in `privacy.html`.
 
-## Use Your Own Photo, GIF, or Video
+## Development
 
-- Click **Upload Photo/GIF/Video** on the new tab page.
-- Select any local image or video file.
-- AnimeTab stores the selected media in local extension storage and reuses it in future tabs.
-- Click **Use Built-In Wallpapers** anytime to switch back to the rotating `bg1.webp` to `bg15.webp` set.
+```bash
+npm install
+npm run dev        # webpack watch mode
+npm test           # node:test unit tests (pure logic in src/lib)
+npm run lint       # eslint
+npm run build      # production bundle → dist/
+npm run package    # store zip → release/animetab-v1.2.0.zip
+```
 
-## Load Unpacked in Chrome
-
-1. Open `chrome://extensions`.
-2. Enable **Developer mode** (top-right toggle).
-3. Click **Load unpacked**.
-4. Select the `animetab/` folder.
-5. Open a new tab to verify AnimeTab is active.
-
-## Package for Chrome Web Store
-
-1. From the workspace root, create a zip package:
-   - PowerShell: `Compress-Archive -Path .\animetab\* -DestinationPath .\animetab.zip -Force`
-2. Exclude local development artifacts if present (for example: `.git/`, screenshot source files, or editor metadata).
-3. Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole).
-4. Create a new item and upload `animetab.zip`.
-
-## Folder Structure
-
-- `manifest.json`: Extension metadata and permissions.
-- `newtab.html`: New tab page markup.
-- `style.css`: Sakura + Midnight styling, glassmorphism, and animations.
-- `newtab.js`: Clock, greeting, wallpaper rotation, quote loading, search, and featured card logic.
-- `quotes.json`: 60 deterministic anime-style quotes.
-- `privacy.html`: Privacy policy page for listing and review.
-- `assets/icon16.png`, `assets/icon48.png`, `assets/icon128.png`: Extension icons.
-  - Current files are tiny placeholders; replace them with production icon art at the same paths.
-- `assets/wallpapers/README.md`: Wallpaper sourcing and compression instructions.
-- `TESTING.md`: Manual QA checklist.
-- `STORE_LISTING.md`: Chrome Web Store listing copy.
-
-## Customize Featured Card Affiliate Link
-
-Edit `newtab.html` and update the anchor with `data-featured-link`:
-
-- Change the `href` to your destination URL.
-- Update the link text shown to users.
-
-You can also adjust card styling in `style.css` using the `.featured-card` and `.featured-link` selectors.
-
-## License
-
-MIT
+See `DEV-README.md` for architecture and `TESTING.md` for the QA checklist.

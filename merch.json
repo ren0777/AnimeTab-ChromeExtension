@@ -1,84 +1,31 @@
 {
+  "affiliateTag": "",
+  "store": "amazon",
+  "disclosure": "As an Amazon Associate, AnimeTab earns from qualifying purchases — at no extra cost to you.",
   "products": [
-    {
-      "id": 1,
-      "title": "Attack on Titan Eren Yeager Figure",
-      "category": "figures",
-      "price": "$24.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EAttack on Titan%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EEren Figure%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=attack+on+titan+eren+figure&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 2,
-      "title": "Demon Slayer Tanjiro Poster",
-      "category": "posters",
-      "price": "$9.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EDemon Slayer%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3ETanjiro Poster%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=demon+slayer+tanjiro+poster&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 3,
-      "title": "Naruto Sasuke Action Figure",
-      "category": "figures",
-      "price": "$19.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3ENaruto Shippuden%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3ESasuke Figure%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=naruto+sasuke+figure&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 4,
-      "title": "One Piece Luffy Merchandise Set",
-      "category": "merch",
-      "price": "$34.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EOne Piece%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3ELuffy Set%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=one+piece+luffy+merchandise&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 5,
-      "title": "My Hero Academia Deku Hoodie",
-      "category": "apparel",
-      "price": "$44.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EMy Hero Academia%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EDeku Hoodie%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=my+hero+academia+deku+hoodie&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 6,
-      "title": "Jujutsu Kaisen Yuji Pop Figure",
-      "category": "figures",
-      "price": "$14.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EJujutsu Kaisen%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EYuji Pop%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=jujutsu+kaisen+yuji+pop&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 7,
-      "title": "Sword Art Online Asuna Manga",
-      "category": "manga",
-      "price": "$12.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3ESword Art Online%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EAsuna Manga%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=sword+art+online+manga&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 8,
-      "title": "Tokyo Ghoul Kaneki Collector Box",
-      "category": "collectors",
-      "price": "$49.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3ETokyo Ghoul%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EKaneki Box%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=tokyo+ghoul+kaneki+collector&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 9,
-      "title": "Dragon Ball Z Goku T-Shirt",
-      "category": "apparel",
-      "price": "$19.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EDragon Ball Z%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EGoku T-Shirt%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=dragon+ball+z+goku+tshirt&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    },
-    {
-      "id": 10,
-      "title": "Neon Genesis Evangelion Blu-ray",
-      "category": "media",
-      "price": "$39.99",
-      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EEvangelion%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EBlu-ray Set%3C/text%3E%3C/svg%3E",
-      "affiliateLink": "https://amazon.com/s?k=evangelion+blu+ray&tag=YOUR_AMAZON_AFFILIATE_TAG"
-    }
+    { "id": 1,  "title": "Attack on Titan — Eren Yeager Figure",     "category": "Figure",     "price": "from $19.99", "search": "attack on titan eren figure" },
+    { "id": 2,  "title": "Demon Slayer — Tanjiro Wall Scroll",      "category": "Wall Scroll", "price": "from $12.99", "search": "demon slayer tanjiro wall scroll" },
+    { "id": 3,  "title": "Naruto — Sasuke Sharingan Poster Set",    "category": "Poster",     "price": "from $9.99",  "search": "naruto sasuke sharingan poster" },
+    { "id": 4,  "title": "One Piece — Luffy Gear 5 Hoodie",         "category": "Apparel",    "price": "from $24.99", "search": "one piece luffy gear 5 hoodie" },
+    { "id": 5,  "title": "My Hero Academia — Deku Pop Figure",      "category": "Figure",     "price": "from $14.99", "search": "my hero academia deku pop figure" },
+    { "id": 6,  "title": "Jujutsu Kaisen — Gojo Keychain",          "category": "Keychain",   "price": "from $7.99",  "search": "jujutsu kaisen gojo keychain" },
+    { "id": 7,  "title": "Sword Art Online — Manga Box Set",        "category": "Manga",      "price": "from $39.99", "search": "sword art online manga box set" },
+    { "id": 8,  "title": "Tokyo Ghoul — Kaneki Mask Replica",       "category": "Collector",  "price": "from $29.99", "search": "tokyo ghoul kaneki mask" },
+    { "id": 9,  "title": "Dragon Ball Z — Goku Anime T-Shirt",      "category": "Apparel",    "price": "from $16.99", "search": "dragon ball z goku t-shirt" },
+    { "id": 10, "title": "Neon Genesis Evangelion — Blu-ray Box",   "category": "Blu-ray",    "price": "from $49.99", "search": "evangelion blu-ray box set" },
+    { "id": 11, "title": "Chainsaw Man — Denji Nendoroid",          "category": "Figure",     "price": "from $34.99", "search": "chainsaw man denji nendoroid" },
+    { "id": 12, "title": "Sailor Moon — Luna Plush",                "category": "Plush",      "price": "from $18.99", "search": "sailor moon luna plush" },
+    { "id": 13, "title": "Spy x Family — Anya Plush Pillow",        "category": "Plush",      "price": "from $21.99", "search": "spy x family anya plush pillow" },
+    { "id": 14, "title": "One Piece — Going Merry Model Ship",      "category": "Collector",  "price": "from $44.99", "search": "one piece going merry model" },
+    { "id": 15, "title": "Studio Ghibli — Totoro Plush Set",        "category": "Plush",      "price": "from $27.99", "search": "totoro plush set ghibli" },
+    { "id": 16, "title": "Death Note — Light Yagami Light Lamp",    "category": "Lamp",       "price": "from $25.99", "search": "death note light yagami lamp" },
+    { "id": 17, "title": "Hunter x Hunter — Killua Figure",         "category": "Figure",     "price": "from $22.99", "search": "hunter x hunter killua figure" },
+    { "id": 18, "title": "Frieren — Frieren Figure Statue",         "category": "Figure",     "price": "from $31.99", "search": "frieren figure statue" },
+    { "id": 19, "title": "Berserk — Kanohdo Box Set Manga",         "category": "Manga",      "price": "from $59.99", "search": "berserk deluxe box set manga" },
+    { "id": 20, "title": "Haikyuu!! — Karasuno Jersey Tee",         "category": "Apparel",    "price": "from $17.99", "search": "haikyuu karasuno jersey" },
+    { "id": 21, "title": "Solo Leveling — Sung Jinwoo Figure",      "category": "Figure",     "price": "from $28.99", "search": "solo leveling jinwoo figure" },
+    { "id": 22, "title": "Vinland Saga — Thorfinn Poster",          "category": "Poster",     "price": "from $10.99", "search": "vinland saga thorfinn poster" },
+    { "id": 23, "title": "Gundam — RX-78-2 Model Kit",              "category": "Model Kit",  "price": "from $15.99", "search": "gundam rx-78-2 model kit" },
+    { "id": 24, "title": "Pokemon — Eevee Sleeping Plush",          "category": "Plush",      "price": "from $19.99", "search": "pokemon eevee sleeping plush" }
   ]
 }

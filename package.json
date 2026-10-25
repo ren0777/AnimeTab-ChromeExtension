@@ -1,14 +1,17 @@
 {
   "name": "animetab",
-  "version": "1.1.0",
-  "description": "AnimeTab — Anime New Tab with Wallpapers, Clock & Quotes",
+  "version": "1.2.0",
+  "description": "AnimeTab — Anime New Tab with Wallpapers, Clock, Quotes, Merch & Airing Countdown",
   "main": "src/index.jsx",
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production",
     "clean": "rimraf dist",
-    "lint": "eslint src/",
-    "test": "echo \"No tests yet\""
+    "lint": "eslint src/ tests/",
+    "test": "node --test tests/*.test.mjs",
+    "package": "node scripts/pack.mjs",
+    "deps:fonts": "node scripts/fetch-fonts.mjs",
+    "verify": "npm run lint && npm test && npm run build"
   },
   "keywords": [
     "chrome-extension",
@@ -34,16 +37,12 @@
     "eslint": "^8.52.0",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "html-webpack-plugin": "^5.5.3",
     "rimraf": "^5.0.1",
     "style-loader": "^3.3.3",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   },
   "browserslist": [
-    "chrome >= 90",
-    "firefox >= 88",
-    "safari >= 14",
-    "edge >= 90"
+    "chrome >= 90"
   ]
 }

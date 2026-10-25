@@ -1,23 +1,40 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
+import './fonts.css';
 import BlurWallpaperBackground from './components/BlurWallpaperBackground';
 import WanoArcDashboard from './components/WanoArcDashboard';
+import MerchSection from './components/MerchSection';
 import { useNekosWallpaper } from './hooks/useNekosWallpaper';
+import { createAnalytics, EVENT_TYPES } from './lib/analytics.mjs';
+import { storageGet, storageSet } from './lib/platform.mjs';
 
-/**
- * Main App component that integrates WanoArcDashboard
- * with AnimeTab's wallpaper system and blur transitions
- */
+// One shared, fully-local metrics store (chrome.storage only — never networked).
+const analytics = createAnalytics({ get: storageGet, set: storageSet });
+
 const App = () => {
   const {
     wallpaperUrl,
     customEnabled,
+    isPinned,
     uploadCustomWallpaper,
     removeCustomWallpaper,
+    shuffleWallpaper,
+    pinWallpaper,
     themeMode,
     updateThemeMode
-  } = useNekosWallpaper();
+  } = useNekosWallpaper(analytics);
 
+  useEffect(() => {
+    analytics.track(EVENT_TYPES.TAB_OPEN);
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) loadingScreen.classList.add('hidden');
+  }, [analytics]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-anime-theme', themeMode);
+  }, [themeMode]);
+
+  // Palette-only fallback while the wallpaper network request is in flight.
   const fallbackWallpaper = useMemo(() => {
     const palette = {
       wano: ['#ff9bb0', '#3f51b5'],
@@ -31,52 +48,39 @@ const App = () => {
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   }, [themeMode]);
 
-  // Handle search from WanoArcDashboard
-  const handleSearch = useCallback((query) => {
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    window.location.href = searchUrl;
-  }, []);
-
-  // Hide loading screen after React mounts
-  useEffect(() => {
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) loadingScreen.classList.add('hidden');
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-anime-theme', themeMode);
-  }, [themeMode]);
-
   return (
-    <BlurWallpaperBackground
-      imageUrl={wallpaperUrl || fallbackWallpaper}
-      blurAmount={20}
-      transitionDuration={800}
-      overlayOpacity={0.5}
-      gradientOverlay={true}
-      preloadNext={true}
-      fallbackUrl={fallbackWallpaper}
-    >
-      <WanoArcDashboard
-        onSearch={handleSearch}
-        customEnabled={customEnabled}
-        onUploadCustom={uploadCustomWallpaper}
-        onRemoveCustom={removeCustomWallpaper}
-        wallpaperUrl={wallpaperUrl}
-        themeMode={themeMode}
-        onThemeChange={updateThemeMode}
-      />
-    </BlurWallpaperBackground>
+    <>
+      <BlurWallpaperBackground
+        imageUrl={wallpaperUrl || fallbackWallpaper}
+        blurAmount={20}
+        transitionDuration={800}
+        overlayOpacity={0.5}
+        gradientOverlay={true}
+        preloadNext={true}
+        fallbackUrl={fallbackWallpaper}
+      >
+        <WanoArcDashboard
+          customEnabled={customEnabled}
+          isPinned={isPinned}
+          onUploadCustom={uploadCustomWallpaper}
+          onRemoveCustom={removeCustomWallpaper}
+          onShuffle={shuffleWallpaper}
+          onPin={pinWallpaper}
+          themeMode={themeMode}
+          onThemeChange={updateThemeMode}
+          analytics={analytics}
+        />
+      </BlurWallpaperBackground>
+      <MerchSection analytics={analytics} />
+    </>
   );
 };
 
-// Initialize React app
 const container = document.getElementById('root');
 if (container) {
   const root = createRoot(container);
   root.render(<App />);
 } else {
   console.error('[AnimeTab] Root element #root not found in newtab.html');
-  // Fallback: show error message
   document.body.innerHTML = '<div style="padding:20px;color:#ff3d63;font-family:sans-serif;">AnimeTab failed to load. Please reload the extension.</div>';
 }

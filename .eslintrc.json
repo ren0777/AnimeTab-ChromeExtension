@@ -1,0 +1,25 @@
+{
+  "root": true,
+  "env": { "browser": true, "es2022": true, "webextensions": true },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "ecmaFeatures": { "jsx": true }
+  },
+  "extends": ["eslint:recommended"],
+  "plugins": ["react", "react-hooks"],
+  "settings": { "react": { "version": "detect" } },
+  "rules": {
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.mjs"],
+      "env": { "node": true }
+    }
+  ]
+}

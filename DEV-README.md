@@ -1,159 +1,75 @@
-# AnimeTab Wano Arc Edition — Developer Guide
+# AnimeTab v1.2.0 — Developer Guide
 
 ## Quick Start
 
-1. **Install dependencies:**
 ```bash
 cd animetab
 npm install
-```
-
-2. **Build the extension:**
-```bash
 npm run build
 ```
-This creates `dist/` folder with `bundle.js` and `index.html`.
 
-3. **Load in Chrome:**
-   - Open `chrome://extensions/`
-   - Enable **Developer mode** (toggle top right)
-   - Click **Load unpacked**
-   - Select the `animetab` folder
+Load in Chrome: `chrome://extensions/` → Developer mode → **Load unpacked** → select `animetab/`. Open a new tab.
 
-4. **Open a new tab** to see the Wano Arc dashboard.
-
-## Development Mode
-
-For live reloading during development:
-
-```bash
-npm run dev
-```
-
-This runs Webpack in watch mode and rebuilds automatically when you edit files in `src/`. After each rebuild, go to `chrome://extensions/` and click the **Refresh** button on the AnimeTab card to apply changes.
+For live rebuilding during development use `npm run dev` (webpack watch); reload the extension card after each build.
 
 ## Project Structure
 
 ```
 animetab/
+├── manifest.json             # MV3 metadata, storage permission, nekos/anilist hosts
+├── newtab.html               # extension new-tab page (loads dist/bundle.js)
+├── background.js             # service worker: wallpaper fetch + AniList airing cache
+├── merch.json                # affiliate catalog + tag config
+├── quotes.json               # 60 daily quotes
+├── privacy.html              # privacy policy (matches shipped behavior)
 ├── src/
-│   ├── components/
-│   │   ├── BlurWallpaperBackground.jsx   # Blur transition background wrapper
-│   │   ├── BlurWallpaperBackground.css   # Background styles
-│   │   ├── WanoArcDashboard.jsx          # Main dashboard UI
-│   │   └── WanoArcDashboard.css          # Dashboard styles (Wano Arc colors)
+│   ├── index.jsx             # app root: analytics singleton, layout
+│   ├── fonts.css             # generated @font-face declarations (self-hosted)
+│   ├── lib/                  # pure, unit-tested helpers (no chrome imports)
+│   │   ├── analytics.mjs     # local privacy-friendly counters
+│   │   ├── anilist.mjs       # season math + parse/format helpers
+│   │   ├── clock.mjs         # time formatting + greetings
+│   │   ├── links.mjs         # quick-link model + favicon helper
+│   │   ├── merch.mjs         # rotation + affiliate URL builders
+│   │   ├── platform.mjs      # promisified chrome.* wrappers
+│   │   ├── search.mjs        # search engine registry
+│   │   └── theme.mjs         # theme whitelist + detector mapping
 │   ├── hooks/
-│   │   └── useNekosWallpaper.js          # Wallpaper fetching hook
-│   ├── index.jsx                         # React entry point
-│   └── index.html                        # HTML template
-├── dist/                                 # Built files (generated)
-├── background.js                         # Service worker (wallpaper API)
-├── hooks/
-│   └── useNekosWallpaper.js              # Original hook (backup)
-├── manifest.json                         # Extension manifest
-├── package.json
-├── webpack.config.js
-└── README.md
+│   │   └── useNekosWallpaper.js  # wallpaper state machine (custom/pin/shuffle/IDB)
+│   └── components/
+│       ├── BlurWallpaperBackground.jsx/.css
+│       ├── WanoArcDashboard.jsx/.css   # layout, quote, watermarks
+│       ├── SearchBar.jsx      # engine picker search input
+│       ├── QuickLinks.jsx/.css# editable tiles (chrome.storage)
+│       ├── AiringCard.jsx/.css# AniList countdown UI
+│       ├── MerchSection.jsx/.css# affiliate card
+│       └── StudioPanel.css    # wallpaper studio dialog styles
+├── scripts/
+│   ├── pack.mjs              # store zip builder (python3 zipfile)
+│   └── fetch-fonts.mjs       # one-time font subset fetcher
+├── tests/                    # node --test suites for src/lib
+└── .github/workflows/build.yml  # CI: lint → test → build → package
 ```
 
-## Technologies
+## Key decisions
 
-- **React 18** — UI library
-- **Framer Motion** — Animations (spring physics, transitions)
-- **Webpack 5** — Bundling
-- **Babel** — JSX transpilation
-- **CSS** — Custom properties, keyframe animations, glassmorphism
+- **Two generations of code existed** (vanilla `newtab.js` + React). v1.2.0 keeps the React app only (`src/` is the single source of truth; `newtab.html` just bootstraps `dist/bundle.js`).
+- **Fonts are self-hosted** woff2 subsets under `assets/fonts/` (also emitted to `dist/fonts/`), generated once by `npm run deps:fonts`. If you add Japanese text to the UI, re-run that script so the subset covers the new glyphs.
+- **Analytics are local-only.** MV3 blocks remote scripts in extension pages, and remote-code-based trackers violate store policy anyway. `src/lib/analytics.mjs` bumps counters in `chrome.storage.local` (30-day retention).
+- **Testing** uses `node --test` with zero dependencies; every `src/lib/*.mjs` module is chrome/DOM-free by design.
 
-## Customization
-
-### Change Color Palette
-
-Edit `WanoArcDashboard.css` root variables:
-
-```css
-:root {
-  --sakura-300: #ff6b8a;   /* Pink */
-  --indigo-500: #3f51b5;   /* Indigo */
-  --gold-200: #f6c94c;     /* Gold */
-  --jade-500: #009688;     /* Jade */
-}
-```
-
-### Adjust Clock Font
-
-The clock uses `Noto Serif JP`. Change in CSS:
-
-```css
-.clock-text {
-  font-family: 'YourFont', serif;
-}
-```
-
-### Modify Quick Links
-
-Edit the `quickLinks` array in `WanoArcDashboard.jsx`.
-
-### Tweak Blur Transition
-
-In `src/index.jsx`, adjust props on `BlurWallpaperBackground`:
-
-```jsx
-<BlurWallpaperBackground
-  blurAmount={15}          // Less blur
-  transitionDuration={600} // Faster
-  overlayOpacity={0.3}     // Lighter overlay
->
-```
-
-## Architecture
-
-### Data Flow
-
-```
-Background Script (background.js)
-    ↓ (chrome.runtime.sendMessage)
-useNekosWallpaper Hook
-    ↓ (wallpaperUrl prop)
-BlurWallpaperBackground
-    ↓ (children prop)
-WanoArcDashboard (UI)
-```
-
-### Wallpaper System
-
-- `useNekosWallpaper` fetches a random wallpaper from nekos.best API via background script
-- Caches URL in chrome.storage
-- Provides `wallpaperUrl` and loading state
-- `BlurWallpaperBackground` handles the image loading, blur transition, and overlay
-
-### Styling Strategy
-
-- **BlurWallpaperBackground.css** — Generic premium background styles
-- **WanoArcDashboard.css** — Wano Arc specific colors, animations, layout
-- No external CSS framework (Tailwind not used); custom CSS mirrors Tailwind utilities
-
-## Building for Production
+## Building & packaging
 
 ```bash
-npm run build
+npm run verify      # lint + test + build
+npm run package     # release/animetab-v1.2.0.zip (~1.6 MB)
 ```
 
-The build outputs minified JS to `dist/bundle.js`. The extension loads these files directly.
+The pack script refuses to run when `manifest.json` and `package.json` versions disagree, and it only bundles the files actually loaded at runtime.
 
-## Troubleshooting
+## Release checklist
 
-### "Cannot find module 'framer-motion'"
-Run `npm install` again.
-
-### Wallpapers not loading
-Ensure `background.js` is running and has permission to fetch `https://nekos.best/*`. Check chrome://extensions → AnimeTab → Service Worker → Inspect for errors.
-
-### Styles broken
-Make sure `BlurWallpaperBackground.css` and `WanoArcDashboard.css` are imported correctly in their JSX files.
-
-### Extension not updating after build
-Go to `chrome://extensions/`, find AnimeTab, and click **Reload** (or **Refresh**).
-
-## License
-
-MIT
+1. `npm run verify`
+2. Load unpacked → open 5+ new tabs (wallpapers change, quote/day stable, links editable)
+3. Check merch card rotates hourly + `→` works, and affiliate tag appears in URLs once added to `merch.json`.
+4. `npm run package`, upload zip to the Web Store.

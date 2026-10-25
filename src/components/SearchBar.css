@@ -1,0 +1,40 @@
+/* Styles layered on top of .search-container in WanoArcDashboard.css */
+
+.engine-select {
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.engine-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 6px 22px 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23ff9bb0' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat right 8px center,
+    rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 11.5px;
+  cursor: pointer;
+  outline: none;
+}
+
+.engine-select select:focus {
+  border-color: rgba(255, 107, 138, 0.5);
+}
+
+.engine-select option {
+  background: #14141f;
+  color: #f0f0f5;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

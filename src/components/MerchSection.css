@@ -1,0 +1,119 @@
+.merch-card {
+  position: fixed;
+  bottom: 18px;
+  left: 18px;
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(420px, calc(100vw - 48px));
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(12, 12, 18, 0.82);
+  border: 1px solid rgba(255, 107, 138, 0.28);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  animation: merch-rise 0.7s ease 1.3s both;
+}
+
+@keyframes merch-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.merch-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.merch-emoji {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  font-size: 22px;
+  border-radius: 10px;
+  background: rgba(255, 107, 138, 0.14);
+  border: 1px solid rgba(255, 107, 138, 0.25);
+}
+
+.merch-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.merch-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+.merch-meta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 2px;
+}
+
+.merch-cta {
+  font-size: 11px;
+  color: #ff6b8a;
+  margin-top: 3px;
+  font-weight: 600;
+}
+
+.merch-next {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 107, 138, 0.4);
+  background: rgba(255, 107, 138, 0.16);
+  color: #ff9bb0;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.merch-next:hover { background: rgba(255, 107, 138, 0.3); transform: scale(1.05); }
+.merch-next:active { transform: scale(0.94); }
+
+.merch-disclosure {
+  position: absolute;
+  top: -9px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(12, 12, 18, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.merch-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #63e2b7;
+  box-shadow: 0 0 6px rgba(99, 226, 183, 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .merch-card { animation: none; }
+}
