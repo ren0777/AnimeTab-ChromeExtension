@@ -18,9 +18,15 @@ export function currentSeason(date = new Date()) {
 export const AIRING_QUERY = (perPage = 6) =>
   `query ($season: MediaSeason, $seasonYear: Int) { Page(perPage: ${perPage}) { media(season: $season, seasonYear: $seasonYear, type: ANIME, status: RELEASING, sort: POPULARITY_DESC) { title { english romaji } nextAiringEpisode { episode airingAt } } } }`;
 
+/** Schedule for the user's watchlist (AniList media ids). */
+export const WATCHLIST_QUERY = `query ($ids: [Int]) { Page(perPage: 50) { media(id_in: $ids, type: ANIME) { id title { english romaji } nextAiringEpisode { episode airingAt } } } }`;
+
+/** Title-only search for the watchlist picker (airing shows only). */
+export const WATCHLIST_SEARCH_QUERY = `query ($search: String) { Page(perPage: 8) { media(search: $search, type: ANIME, status: RELEASING, sort: SEARCH_MATCH) { id title { english romaji } format } } }`;
+
 /**
  * Reduce a GraphQL response to upcoming episodes within the next 14 days,
- * sorted by air time.
+ * sorted by air time. `id` is passed through when present (watchlist rows).
  */
 export function parseAiring(data, now = Date.now()) {
   const media = data?.data?.Page?.media || [];
@@ -32,7 +38,10 @@ export function parseAiring(data, now = Date.now()) {
       if (!ep || typeof ep.airingAt !== 'number') return null;
       if (ep.airingAt < nowSec || ep.airingAt > nowSec + windowSec) return null;
       const title = m.title?.english || m.title?.romaji || 'Unknown series';
-      return { title, episode: ep.episode, airingAt: ep.airingAt * 1000 };
+      return {
+        ...(Number.isFinite(m?.id) ? { id: m.id } : {}),
+        title, episode: ep.episode, airingAt: ep.airingAt * 1000
+      };
     })
     .filter(Boolean)
     .sort((a, b) => a.airingAt - b.airingAt);

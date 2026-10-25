@@ -12,8 +12,8 @@ Everything runs client-side. User data stays local: preferences and anonymous fe
 - **Search bar** – engine picker (Google, DuckDuckGo, YouTube, AniList), autofocus, persists your choice.
 - **Quick Links** – add / remove / reorder tiles; favicons fetched from Google's favicon service; custom links persist locally.
 - **Word of the Day** – deterministic daily quote from `quotes.json`.
-- **Airing Soon** – next scheduled episodes for the current AniList season, cached 6 hours in the background worker.
-- **Focus timer** – 25-minute Pomodoro persisted in storage, so every new tab shows the same countdown; completion chime + toast.
+- **Airing Soon + watchlist** – popular current-season shows *plus* your personally pinned shows (AniList search, add/remove inline, 12 max); yours always sit above the seasonal list.
+- **Focus timer** – length picker (15/25/45/60 min), persisted and shared across tabs; completion chime + toast.
 - **Ambient sound** – synthesized rain / vinyl / ocean (WebAudio, no audio files). Off by default; selection remembered, never auto-plays.
 - **Daily streak** – 🔥 pill for consecutive days with a tab open.
 - **Invite hub** – one-tap share (X, Telegram, WhatsApp, Reddit, Discord, copy) with cosmetic unlocks at 3/5/10 invite actions: neon rain overlay, night-drive quote mode, hologram clock skin.

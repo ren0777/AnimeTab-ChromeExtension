@@ -49,11 +49,19 @@ const installNekosUaRule = () => {
 
 installNekosUaRule();
 
+// Remove keys written by the pre-1.2 vanilla builds (one-off hygiene).
+const LEGACY_KEYS = [
+  'customBackgroundData', 'currentWallpaperIndex', 'featuredDismissed',
+  'lofiStreamUrl', 'lofiVolume', 'lofiMuted',
+  'inviteCount', 'growthMetrics', 'unlockedRewards'
+];
+try { chrome.storage.local.remove(LEGACY_KEYS); } catch { /* older Chrome */ }
+
 const REQUEST_TIMEOUT_MS = 9000; // wallhaven serves large images
-// V3: invalidates pools cached before the categories=010 fix (they held
+// V4: invalidates pools cached before the categories=010 + tag-query fixes (they held
 // all-category results). Pools record their source so scenes and
 // landscapes never serve each other's images.
-const WALLHAVEN_POOL_KEY = 'wallhavenPoolV3';
+const WALLHAVEN_POOL_KEY = 'wallhavenPoolV4';
 const WALLHAVEN_POOL_TTL_MS = 15 * 60 * 1000;
 
 const pickRandom = (items) => items[Math.floor(Math.random() * items.length)];
@@ -86,11 +94,14 @@ const fetchJson = async (url, options = {}) => {
   }
 };
 
-// --- AniList "Airing Soon" ------------------------------------------------
+// --- AniList "Airing Soon" + watchlist ------------------------------------
 
 const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
 const ANILIST_CACHE_KEY = 'anilistAiringCache';
+const ANILIST_WATCH_CACHE_KEY = 'anilistWatchCache';
 const ANILIST_TTL_MS = 6 * 60 * 60 * 1000;
+const WATCHLIST_KEY = 'anilistWatchlist'; // [{ id, title }]
+const WATCHLIST_MAX = 12;
 
 const currentSeason = (date = new Date()) => {
   const m = date.getMonth();
@@ -104,6 +115,17 @@ const currentSeason = (date = new Date()) => {
 const AIRING_QUERY = `query ($season: MediaSeason, $seasonYear: Int) {
   Page(perPage: 6) {
     media(season: $season, seasonYear: $seasonYear, type: ANIME, status: RELEASING, sort: POPULARITY_DESC) {
+      id
+      title { english romaji }
+      nextAiringEpisode { episode airingAt }
+    }
+  }
+}`;
+
+const WATCHLIST_QUERY = `query ($ids: [Int]) {
+  Page(perPage: 50) {
+    media(id_in: $ids, type: ANIME) {
+      id
       title { english romaji }
       nextAiringEpisode { episode airingAt }
     }
@@ -120,6 +142,7 @@ const parseAiringItems = (data, now = Date.now()) => {
       if (!ep || typeof ep.airingAt !== 'number') return null;
       if (ep.airingAt < nowSec || ep.airingAt > nowSec + windowSec) return null;
       return {
+        ...(Number.isFinite(m?.id) ? { id: m.id } : {}),
         title: m.title?.english || m.title?.romaji || 'Unknown series',
         episode: ep.episode,
         airingAt: ep.airingAt * 1000
@@ -130,31 +153,65 @@ const parseAiringItems = (data, now = Date.now()) => {
 };
 
 const handleFetchAiring = async () => {
-  try {
-    const cache = (await storageGet(ANILIST_CACHE_KEY))[ANILIST_CACHE_KEY];
-    if (cache && Date.now() - cache.fetchedAt < ANILIST_TTL_MS) {
-      return { items: cache.items, cached: true };
-    }
-  } catch { /* cache miss */ }
-
-  try {
-    const { season, seasonYear } = currentSeason();
-    const data = await fetchJson(ANILIST_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ query: AIRING_QUERY, variables: { season, seasonYear } })
-    });
-    const items = parseAiringItems(data);
-    await storageSet({ [ANILIST_CACHE_KEY]: { items, fetchedAt: Date.now() } });
-    return { items, cached: false };
-  } catch (error) {
-    console.warn('[AnimeTab] AniList request failed:', error?.message || error);
+  const seasonal = await (async () => {
     try {
       const cache = (await storageGet(ANILIST_CACHE_KEY))[ANILIST_CACHE_KEY];
-      if (cache) return { items: cache.items, cached: true, stale: true };
-    } catch { /* ignore */ }
-    return { items: [] };
-  }
+      if (cache && Date.now() - cache.fetchedAt < ANILIST_TTL_MS) {
+        return { items: cache.items };
+      }
+    } catch { /* cache miss */ }
+
+    try {
+      const { season, seasonYear } = currentSeason();
+      const data = await fetchJson(ANILIST_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ query: AIRING_QUERY, variables: { season, seasonYear } })
+      });
+      const items = parseAiringItems(data);
+      await storageSet({ [ANILIST_CACHE_KEY]: { items, fetchedAt: Date.now() } });
+      return { items };
+    } catch (error) {
+      console.warn('[AnimeTab] AniList request failed:', error?.message || error);
+      try {
+        const cache = (await storageGet(ANILIST_CACHE_KEY))[ANILIST_CACHE_KEY];
+        if (cache) return { items: cache.items, stale: true };
+      } catch { /* ignore */ }
+      return { items: [] };
+    }
+  })();
+
+  // Watchlist schedule (cheap ids query, short cache so edits show quickly).
+  const watchlist = await (async () => {
+    try {
+      const cache = (await storageGet(ANILIST_WATCH_CACHE_KEY))[ANILIST_WATCH_CACHE_KEY];
+      if (cache && Date.now() - cache.fetchedAt < ANILIST_TTL_MS) {
+        return { items: cache.items };
+      }
+    } catch { /* cache miss */ }
+    try {
+      const ids = ((await storageGet(WATCHLIST_KEY))[WATCHLIST_KEY] || [])
+        .map((entry) => entry?.id).filter(Number.isFinite);
+      if (!ids.length) return { items: [] };
+      const data = await fetchJson(ANILIST_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ query: WATCHLIST_QUERY, variables: { ids } })
+      });
+      const items = parseAiringItems(data);
+      await storageSet({ [ANILIST_WATCH_CACHE_KEY]: { items, fetchedAt: Date.now() } });
+      return { items };
+    } catch (error) {
+      console.warn('[AnimeTab] Watchlist request failed:', error?.message || error);
+      try {
+        const cache = (await storageGet(ANILIST_WATCH_CACHE_KEY))[ANILIST_WATCH_CACHE_KEY];
+        if (cache) return { items: cache.items, stale: true };
+      } catch { /* ignore */ }
+      return { items: [] };
+    }
+  })();
+
+  return { items: seasonal.items, watchlist: watchlist.items };
 };
 
 // --- Wallpaper sources -----------------------------------------------------

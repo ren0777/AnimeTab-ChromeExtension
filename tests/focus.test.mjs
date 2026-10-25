@@ -2,8 +2,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   normalizeSession, startSession, remainingMs, formatFocusRemaining,
-  DEFAULT_MINUTES
+  normalizeFocusMinutes, DEFAULT_MINUTES
 } from '../src/lib/focus.mjs';
+
+test('normalizeFocusMinutes whitelists options', () => {
+  for (const m of [15, 25, 45, 60]) assert.equal(normalizeFocusMinutes(m), m);
+  assert.equal(normalizeFocusMinutes(25), 25);
+  assert.equal(normalizeFocusMinutes('45'), 45); // storage round-trip
+  assert.equal(normalizeFocusMinutes(99), DEFAULT_MINUTES);
+  assert.equal(normalizeFocusMinutes(undefined), DEFAULT_MINUTES);
+});
 
 test('normalizeSession keeps in-flight sessions and drops finished ones', () => {
   const now = 1_000_000;

@@ -4,6 +4,7 @@ import './fonts.css';
 import BlurWallpaperBackground from './components/BlurWallpaperBackground';
 import WanoArcDashboard from './components/WanoArcDashboard';
 import MerchSection from './components/MerchSection';
+import FirstRunToast from './components/FirstRunToast';
 import { useNekosWallpaper } from './hooks/useNekosWallpaper';
 import { createAnalytics, EVENT_TYPES } from './lib/analytics.mjs';
 import { storageGet, storageSet } from './lib/platform.mjs';
@@ -105,6 +106,7 @@ const App = () => {
         </div>
       )}
       <MerchSection analytics={analytics} />
+      <FirstRunToast />
     </>
   );
 };

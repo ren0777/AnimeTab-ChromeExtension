@@ -11,6 +11,7 @@ import { formatTime, greetingAt } from '../lib/clock.mjs';
 import { storageGet, storageSet } from '../lib/platform.mjs';
 import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
 import { streakFromMetrics, MERCH_HIDDEN_KEY } from '../lib/growth.mjs';
+import { normalizeFocusMinutes, FOCUS_MINUTES_KEY, FOCUS_MINUTE_OPTIONS } from '../lib/focus.mjs';
 import { WALLPAPER_CATEGORIES } from '../hooks/useNekosWallpaper';
 import { WALLPAPER_SOURCES } from '../lib/wallpaperSources.mjs';
 import './StudioPanel.css';
@@ -59,6 +60,7 @@ const WanoArcDashboard = ({
   const [studioMetrics, setStudioMetrics] = useState(null);
   const [streak, setStreak] = useState(0);
   const [merchVisible, setMerchVisible] = useState(true);
+  const [focusMinutes, setFocusMinutes] = useState(25);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -72,8 +74,9 @@ const WanoArcDashboard = ({
       setHour12(stored === '12');
       const metrics = await analytics.snapshot();
       setStreak(streakFromMetrics(metrics.days || {}));
-      const hidden = (await storageGet([MERCH_HIDDEN_KEY]))[MERCH_HIDDEN_KEY];
-      setMerchVisible(!hidden);
+      const merchAndFocus = await storageGet([MERCH_HIDDEN_KEY, FOCUS_MINUTES_KEY]);
+      setMerchVisible(!merchAndFocus[MERCH_HIDDEN_KEY]);
+      setFocusMinutes(normalizeFocusMinutes(merchAndFocus[FOCUS_MINUTES_KEY]));
     })();
   }, [analytics]);
 
@@ -289,6 +292,19 @@ const WanoArcDashboard = ({
                   options={[{ value: '24', label: '24-hour' }, { value: '12', label: '12-hour' }]}
                 />
               </div>
+              <div className="studio-row">
+                <label className="studio-label">Focus</label>
+                <StyleSelect
+                  ariaLabel="Focus session length"
+                  title="Focus timer length"
+                  value={String(focusMinutes)}
+                  onChange={async (v) => {
+                    setFocusMinutes(normalizeFocusMinutes(v));
+                    await storageSet({ [FOCUS_MINUTES_KEY]: normalizeFocusMinutes(v) });
+                  }}
+                  options={FOCUS_MINUTE_OPTIONS.map((m) => ({ value: String(m), label: `${m} minutes` }))}
+                />
+              </div>
               <label className="studio-row studio-check" htmlFor="studio-merch">
                 <input
                   id="studio-merch"
@@ -349,7 +365,7 @@ const WanoArcDashboard = ({
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 1.15 }}
         >
-          <AiringCard />
+          <AiringCard analytics={analytics} />
         </motion.div>
       </div>
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  FOCUS_KEY, FOCUS_COMPLETE_KEY, STALE_COMPLETION_MS,
-  startSession, normalizeSession, remainingMs, formatFocusRemaining
+  FOCUS_KEY, FOCUS_COMPLETE_KEY, STALE_COMPLETION_MS, FOCUS_MINUTES_KEY,
+  normalizeFocusMinutes, startSession, normalizeSession, remainingMs, formatFocusRemaining
 } from '../lib/focus.mjs';
 import { createAmbientEngine } from '../lib/ambient.mjs';
 import { EVENT_TYPES } from '../lib/analytics.mjs';
@@ -18,6 +18,7 @@ export default function FocusTimer({ analytics = createAnalytics({ get: async ()
   const [session, setSession] = useState(null);
   const [remaining, setRemaining] = useState(null);
   const [toast, setToast] = useState(false);
+  const [minutes, setMinutes] = useState(25);
   const engineRef = useRef(null);
   const sessionRef = useRef(null);
   sessionRef.current = session;
@@ -25,9 +26,10 @@ export default function FocusTimer({ analytics = createAnalytics({ get: async ()
   useEffect(() => {
     (async () => {
       // Surface (then clear) a completion that happened while no tab was open.
-      const stored = (await storageGet([FOCUS_KEY, FOCUS_COMPLETE_KEY]));
+      const stored = (await storageGet([FOCUS_KEY, FOCUS_COMPLETE_KEY, FOCUS_MINUTES_KEY]));
       const fresh = normalizeSession(stored[FOCUS_KEY]);
       setSession(fresh);
+      setMinutes(normalizeFocusMinutes(stored[FOCUS_MINUTES_KEY]));
       if (stored[FOCUS_COMPLETE_KEY]) {
         if (Date.now() - stored[FOCUS_COMPLETE_KEY] <= STALE_COMPLETION_MS) {
           setToast(true);
@@ -63,7 +65,8 @@ export default function FocusTimer({ analytics = createAnalytics({ get: async ()
   }, [session, analytics]);
 
   const start = async () => {
-    const next = startSession(Date.now(), 25);
+    const length = normalizeFocusMinutes(minutes);
+    const next = startSession(Date.now(), length);
     setSession(next);
     await storageSet({ [FOCUS_KEY]: next });
     if (analytics) await analytics.track(EVENT_TYPES.FOCUS_START);
@@ -90,8 +93,8 @@ export default function FocusTimer({ analytics = createAnalytics({ get: async ()
 
   return (
     <>
-      <button type="button" className="focus-pill" onClick={start} title="Start a 25-minute focus session">
-        ⏱ Focus 25
+      <button type="button" className="focus-pill" onClick={start} title={`Start a ${minutes}-minute focus session (length set in Wallpaper Studio)`}>
+        ⏱ Focus {minutes}
       </button>
       {toast && <div className="focus-toast">⚡ Focus session complete — nice work!</div>}
     </>

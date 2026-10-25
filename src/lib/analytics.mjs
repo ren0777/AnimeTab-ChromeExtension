@@ -16,7 +16,9 @@ export const EVENT_TYPES = {
   FOCUS_START: 'focus_start',
   FOCUS_COMPLETE: 'focus_complete',
   INVITE_ACTION: 'invite_action',
-  SETUP_IMPORT: 'setup_import'
+  SETUP_IMPORT: 'setup_import',
+  SHOW_PIN: 'show_pin',
+  SHOW_REMOVE: 'show_remove'
 };
 
 const dayKeyOf = (date) => date.toISOString().slice(0, 10);

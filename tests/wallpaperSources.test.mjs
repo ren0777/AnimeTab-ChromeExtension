@@ -51,7 +51,9 @@ test('buildWallhavenUrl encodes SFW, 1080p, random-sort searches', () => {
 
   const scenery = buildWallhavenUrl('scenery', 1);
   assert.ok(scenery.includes('categories=010'));
-  assert.ok(scenery.includes('q=landscape')); // single strong tag, no character-art leakage
+  const q = new URL(scenery).searchParams.get('q');
+  assert.ok(q.includes('+landscape')); // tag required, not a loose match
+  for (const noise of ['-animeirl', '-"anime girls"', '-"video games"']) assert.ok(q.includes(noise));
 });
 
 test('wallhavenPage stays within the page pool', () => {

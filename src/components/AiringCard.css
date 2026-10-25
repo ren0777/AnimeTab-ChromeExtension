@@ -3,6 +3,22 @@
   margin-top: 18px;
 }
 
+.quote-header { justify-content: space-between; }
+
+.airing-add-btn {
+  margin-left: auto;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.airing-add-btn:hover { color: #fff; background: rgba(255, 107, 138, 0.18); border-color: rgba(255, 107, 138, 0.4); }
+
 .airing-list {
   list-style: none;
   margin: 10px 0 0;
@@ -12,12 +28,32 @@
   gap: 9px;
 }
 
+.airing-watchlist {
+  padding-bottom: 8px;
+  margin-bottom: 2px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
 .airing-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
 }
+
+.airing-watchlist .airing-row.watched .airing-title { color: #ffd27a; }
+
+.airing-remove {
+  margin-left: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0 2px;
+}
+
+.airing-remove:hover { color: #ff6b8a; }
 
 .airing-title {
   color: rgba(255, 255, 255, 0.92);
@@ -33,6 +69,64 @@
   font-size: 12px;
   color: #ff9bb0;
   font-variant-numeric: tabular-nums;
+}
+
+/* Seasonal label divider when watchlist rows exist above */
+.airing-seasonal-title { position: relative; padding-top: 10px; }
+
+.airing-picker {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.airing-picker input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.airing-picker input:focus { border-color: rgba(255, 107, 138, 0.55); }
+.airing-picker input::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+.airing-results {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: rgba(10, 10, 16, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+}
+
+.airing-results li button {
+  width: 100%;
+  text-align: left;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.airing-results li button:hover { background: rgba(255, 107, 138, 0.18); color: #fff; }
+
+.airing-result-empty { padding: 8px 10px; color: rgba(255, 255, 255, 0.45); font-size: 12px; }
+
+.airing-picker-hint {
+  margin: 2px 0 0;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
 }
 
 @media (max-width: 640px) {

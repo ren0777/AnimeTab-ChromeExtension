@@ -37,13 +37,16 @@ export const WALLHAVEN_PAGE_POOL = 10;
 // valid value and would fall back to the default all-category search).
 const WALLHAVEN_ANIME_ONLY = '010';
 
+// Landscapes: require the "landscape" tag and drop what the anime category
+// still lets through — real-world photos (animeirl), character art (anime
+// girls) and game screenshots. ~600 SFW 1080p+ results as of 2026-10.
+export const WALLHAVEN_SCENERY_QUERY = '+landscape -animeirl -"anime girls" -"video games"';
+
 export function buildWallhavenUrl(sourceId, page = 1) {
   const params = new URLSearchParams(WALLHAVEN_BASE_PARAMS);
   params.set('categories', WALLHAVEN_ANIME_ONLY);
   if (sourceId !== 'scenes') {
-    // Landscapes: anime category narrowed by the single strong "landscape"
-    // tag — a multi-word "anime landscape" query leaks generic character art.
-    params.set('q', 'landscape');
+    params.set('q', WALLHAVEN_SCENERY_QUERY);
   }
   params.set('page', String(page));
   return `${WALLHAVEN_ABI}?${params.toString()}`;

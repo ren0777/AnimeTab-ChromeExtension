@@ -1,0 +1,25 @@
+.welcome-toast {
+  position: fixed;
+  bottom: 78px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 840;
+  width: min(420px, calc(100vw - 40px));
+  background: rgba(14, 14, 22, 0.95);
+  border: 1px solid rgba(255, 107, 138, 0.4);
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  animation: toast-in 0.45s ease;
+}
+
+.welcome-toast strong { color: #ffb4c4; font-size: 13.5px; }
+
+.welcome-toast p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.welcome-toast b { color: #fff; }

@@ -16,7 +16,7 @@ test('parseAiring keeps only upcoming episodes inside a 14 day window', () => {
         media: [
           { title: { english: 'Past Show' }, nextAiringEpisode: { episode: 3, airingAt: Math.floor(now / 1000) - 100 } },
           { title: { romaji: 'Far Future' }, nextAiringEpisode: { episode: 5, airingAt: Math.floor(now / 1000) + 20 * 86400 } },
-          { title: { english: 'Soon Show' }, nextAiringEpisode: { episode: 8, airingAt: Math.floor(now / 1000) + 3600 * 2 } }
+          { title: { english: 'Soon Show' }, id: 154587, nextAiringEpisode: { episode: 8, airingAt: Math.floor(now / 1000) + 3600 * 2 } }
         ]
       }
     }
@@ -25,6 +25,15 @@ test('parseAiring keeps only upcoming episodes inside a 14 day window', () => {
   assert.equal(out.length, 1);
   assert.equal(out[0].title, 'Soon Show');
   assert.equal(out[0].episode, 8);
+  assert.equal(out[0].id, 154587); // passthrough for watchlist rows
+});
+
+test('parseAiring omits id when the payload has none (seasonal query)', () => {
+  const now = Date.UTC(2026, 9, 25, 12);
+  const out = parseAiring({ data: { Page: { media: [
+    { title: { romaji: 'NoId Show' }, nextAiringEpisode: { episode: 1, airingAt: Math.floor(now / 1000) + 60 } }
+  ] } } }, now);
+  assert.equal('id' in out[0], false);
 });
 
 test('parseAiring tolerates malformed payloads', () => {
