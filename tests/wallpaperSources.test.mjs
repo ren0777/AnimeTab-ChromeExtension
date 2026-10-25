@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import {
   WALLPAPER_SOURCES, normalizeSource, pickNekosCategory, buildNekosUrl,
   buildWallhavenUrl, wallhavenPage, wallhavenPaths, extractNekosUrl,
-  fallbackSourceFor, sourceAttemptChain
+  fallbackSourceFor, sourceAttemptChain, buildBingUrl, bingPaths, BING_IMAGE_DAYS
 } from '../src/lib/wallpaperSources.mjs';
 
 test('source registry + fallback chain stay consistent', () => {
-  assert.deepEqual(WALLPAPER_SOURCES.map((s) => s.id), ['nekos', 'scenes', 'scenery']);
+  assert.deepEqual(WALLPAPER_SOURCES.map((s) => s.id), ['nekos', 'scenes', 'scenery', 'photo']);
   for (const s of WALLPAPER_SOURCES) {
     assert.equal(normalizeSource(s.id), s.id);
     assert.ok(fallbackSourceFor(s.id) !== s.id);
@@ -17,16 +17,23 @@ test('source registry + fallback chain stay consistent', () => {
   assert.equal(normalizeSource(undefined), 'nekos');
 });
 
-test('sourceAttemptChain covers every source, even with a whole provider down', () => {
-  for (const wanted of ['nekos', 'scenes', 'scenery', 'bogus', undefined]) {
+test('sourceAttemptChain covers every source and every provider', () => {
+  const providers = new Set(WALLPAPER_SOURCES.map((s) => s.provider));
+  assert.equal(providers.size, 3); // nekos.best, wallhaven.cc, bing.com
+  for (const wanted of ['nekos', 'scenes', 'scenery', 'photo', 'bogus', undefined]) {
     const chain = sourceAttemptChain(wanted);
-    assert.equal(chain.length, WALLPAPER_SOURCES.length); // no dead-end provider
+    assert.equal(chain.length, WALLPAPER_SOURCES.length);
     assert.equal(chain[0], normalizeSource(wanted));
     assert.equal(new Set(chain).size, chain.length); // each source tried once
-    for (let i = 1; i < chain.length; i++) {
-      assert.equal(chain[i], fallbackSourceFor(chain[i - 1])); // follows fallback links
+    // every provider is represented in the chain (no dead-end outage)
+    for (const provider of providers) {
+      assert.ok(chain.some((id) => WALLPAPER_SOURCES.find((s) => s.id === id)?.provider === provider));
     }
   }
+  // affinity: a scenery failure tries the other provider with landscapes next
+  assert.equal(sourceAttemptChain('scenery')[1], 'scenes');
+  assert.equal(sourceAttemptChain('scenery').includes('photo'), true);
+  assert.equal(sourceAttemptChain('photo')[0], 'photo');
 });
 
 test('pickNekosCategory honors a single choice or mixes the pool', () => {
@@ -83,4 +90,28 @@ test('extractNekosUrl handles known response shapes', () => {
   assert.equal(extractNekosUrl({ data: [{ url: 'b' }] }), 'b');
   assert.equal(extractNekosUrl({ url: 'c' }), 'c');
   assert.equal(extractNekosUrl({}), null);
+});
+
+test('buildBingUrl clamps idx into the archive window', () => {
+  assert.ok(buildBingUrl(0).includes('idx=0&n=8'));
+  assert.ok(buildBingUrl(BING_IMAGE_DAYS - 1).includes(`idx=${BING_IMAGE_DAYS - 1}&n=8`));
+  assert.ok(buildBingUrl(99).includes(`idx=${BING_IMAGE_DAYS - 1}&n=8`));
+  assert.ok(buildBingUrl(-5).includes('idx=0&n=8'));
+});
+
+test('bingPaths absolutizes /th?id image urls and drops junk', () => {
+  assert.deepEqual(
+    bingPaths({ images: [
+      { url: '/th?id=OHR.RiceTerraces_EN-US0123_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp' },
+      { url: 'https://www.bing.com/th?id=OHR.Absolute_EN-US1_1920x1080.jpg' },
+      { url: '' },
+      { url: '/HPImageArchive.aspx?x=1' }
+    ] }),
+    [
+      'https://www.bing.com/th?id=OHR.RiceTerraces_EN-US0123_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp',
+      'https://www.bing.com/th?id=OHR.Absolute_EN-US1_1920x1080.jpg'
+    ]
+  );
+  assert.deepEqual(bingPaths(null), []);
+  assert.deepEqual(bingPaths({ images: [] }), []);
 });

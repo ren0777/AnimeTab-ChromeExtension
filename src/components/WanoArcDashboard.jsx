@@ -44,6 +44,7 @@ const WanoArcDashboard = ({
   onRemoveCustom,
   onShuffle,
   onPin,
+  onSaveWallpaper,
   wallpaperCategory,
   onCategoryChange,
   wallpaperSource,
@@ -252,6 +253,9 @@ const WanoArcDashboard = ({
                   </button>
                 )}
               </div>
+              <button type="button" className="wallpaper-btn" onClick={onSaveWallpaper} title="Save the current wallpaper file to disk">
+                💾 Save image…
+              </button>
               <div className="studio-row">
                 <label className="studio-label">Source</label>
                 <StyleSelect

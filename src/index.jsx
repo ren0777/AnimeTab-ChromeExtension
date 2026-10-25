@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './fonts.css';
 import BlurWallpaperBackground from './components/BlurWallpaperBackground';
@@ -7,7 +7,7 @@ import MerchSection from './components/MerchSection';
 import FirstRunToast from './components/FirstRunToast';
 import { useNekosWallpaper } from './hooks/useNekosWallpaper';
 import { createAnalytics, EVENT_TYPES } from './lib/analytics.mjs';
-import { storageGet, storageSet } from './lib/platform.mjs';
+import { storageGet, storageSet, downloadFile } from './lib/platform.mjs';
 import { GROWTH_KEY, unlockedRewards } from './lib/growth.mjs';
 
 // One shared, fully-local metrics store (chrome.storage only — never networked).
@@ -57,6 +57,16 @@ const App = () => {
     document.documentElement.setAttribute('data-anime-theme', themeMode);
   }, [themeMode]);
 
+  // Save the current wallpaper to disk ( Studios → 💾 Save image).
+  const saveWallpaper = useCallback(async () => {
+    try {
+      if (!wallpaperUrl || !/^https?:|^blob:/.test(wallpaperUrl)) return;
+      const ext = /\.(jpe?g|png|webp|gif)(?:\?|$)/i.exec(wallpaperUrl)?.[1] || 'jpg';
+      await downloadFile(wallpaperUrl, `animetab-wallpaper-${new Date().toISOString().slice(0, 10)}.${ext}`);
+      await analytics.track(EVENT_TYPES.WALLPAPER_SAVE);
+    } catch { /* user canceled or downloads unavailable */ }
+  }, [wallpaperUrl, analytics]);
+
   // Palette-only fallback while the wallpaper network request is in flight.
   const fallbackWallpaper = useMemo(() => {
     const palette = {
@@ -90,6 +100,7 @@ const App = () => {
           onRemoveCustom={removeCustomWallpaper}
           onShuffle={shuffleWallpaper}
           onPin={pinWallpaper}
+          onSaveWallpaper={saveWallpaper}
           wallpaperCategory={wallpaperCategory}
           onCategoryChange={setWallpaperCategory}
           wallpaperSource={wallpaperSource}

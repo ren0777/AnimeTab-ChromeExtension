@@ -12,6 +12,7 @@ export const EVENT_TYPES = {
   WALLPAPER_UPLOAD: 'wallpaper_upload',
   WALLPAPER_PIN: 'wallpaper_pin',
   WALLPAPER_SHUFFLE: 'wallpaper_shuffle',
+  WALLPAPER_SAVE: 'wallpaper_save',
   LINK_EDIT: 'link_edit',
   FOCUS_START: 'focus_start',
   FOCUS_COMPLETE: 'focus_complete',

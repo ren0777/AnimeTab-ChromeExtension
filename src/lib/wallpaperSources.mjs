@@ -9,7 +9,8 @@ export const NEKOS_CATEGORIES = ['neko', 'waifu', 'kitsune', 'husbando'];
 export const WALLPAPER_SOURCES = [
   { id: 'nekos', label: 'Anime portraits', provider: 'nekos.best' },
   { id: 'scenes', label: 'Anime scenes', provider: 'wallhaven.cc' },
-  { id: 'scenery', label: 'Anime landscapes', provider: 'wallhaven.cc' }
+  { id: 'scenery', label: 'Anime landscapes', provider: 'wallhaven.cc' },
+  { id: 'photo', label: 'Photo of the day', provider: 'bing.com' }
 ];
 
 export const DEFAULT_SOURCE = 'nekos';
@@ -65,6 +66,26 @@ export function wallhavenPaths(data) {
     .map((item) => item.path);
 }
 
+// --- Bing daily wallpapers (keyless, SFW, genuine landscape photos) --------
+export const BING_ARCHIVE_URL = 'https://www.bing.com/HPImageArchive.aspx?format=js&n=8&mkt=en-US';
+export const BING_IMAGE_DAYS = 8;
+
+export function buildBingUrl(idx = 0) {
+  return `https://www.bing.com/HPImageArchive.aspx?format=js&idx=${Math.max(0, Math.min(BING_IMAGE_DAYS - 1, idx))}&n=${BING_IMAGE_DAYS}&mkt=en-US`;
+}
+
+/** The last 8 Bing daily images as absolute https URLs. */
+export function bingPaths(data) {
+  const images = Array.isArray(data?.images) ? data.images : [];
+  return images
+    .map((img) => {
+      const raw = typeof img?.url === 'string' ? img.url : '';
+      if (!raw) return '';
+      return /^https:/.test(raw) ? raw : `https://www.bing.com${raw}`;
+    })
+    .filter((url) => /^https:\/\/www\.bing\.com\/th\?id=/.test(url));
+}
+
 /** nekos.best response → image URL (handles a few known shapes). */
 export function extractNekosUrl(data) {
   return data?.results?.[0]?.url || data?.data?.[0]?.url || data?.url || null;
@@ -74,21 +95,49 @@ export function extractNekosUrl(data) {
 export function fallbackSourceFor(sourceId) {
   if (sourceId === 'nekos') return 'scenes';
   if (sourceId === 'scenes') return 'scenery';
-  return 'nekos';
+  if (sourceId === 'photo') return 'scenery';
+  return 'photo';
 }
 
 /**
- * Attempt chain for a load: the requested source first, then its fallback,
- * then the remaining source. Covers a whole-provider outage (e.g. every
- * wallhaven endpoint blocked on the user's network) — the chain still ends
- * on a different provider instead of landing straight on bundled images.
+ * Attempt chain for a load: the requested source first, its same-provider
+ * sibling next, then every other provider — so a whole-provider outage
+ * (e.g. all wallhaven endpoints unreachable) still lands on a live provider
+ * before the bundled images are ever touched.
  */
+export const PROVIDER_ORDER = ['wallhaven.cc', 'bing.com', 'nekos.best'];
+
+/** Closest-to-intent next provider when the requested one fails. */
+const AFFINITY_PROVIDER = {
+  scenery: 'bing.com',
+  photo: 'wallhaven.cc',
+  nekos: 'wallhaven.cc',
+  scenes: 'nekos.best'
+};
+
 export function sourceAttemptChain(sourceId) {
-  const chain = [normalizeSource(sourceId)];
-  while (chain.length < WALLPAPER_SOURCES.length) {
-    const next = fallbackSourceFor(chain[chain.length - 1]);
-    if (chain.includes(next)) break;
-    chain.push(next);
+  const wanted = normalizeSource(sourceId);
+  const providerOf = (id) => WALLPAPER_SOURCES.find((s) => s.id === id)?.provider;
+  const byProvider = new Map();
+  for (const source of WALLPAPER_SOURCES) {
+    if (!byProvider.has(source.provider)) byProvider.set(source.provider, []);
+    byProvider.get(source.provider).push(source.id);
+  }
+
+  const chain = [wanted];
+  const addProvider = (provider) => {
+    for (const id of byProvider.get(provider) || []) {
+      if (!chain.includes(id)) chain.push(id);
+    }
+  };
+
+  const wantedProvider = providerOf(wanted);
+  const order = [wantedProvider, AFFINITY_PROVIDER[wanted], ...PROVIDER_ORDER];
+  const processed = new Set();
+  for (const provider of order) {
+    if (!provider || processed.has(provider)) continue;
+    processed.add(provider);
+    addProvider(provider); // siblings of the wanted source come first
   }
   return chain;
 }

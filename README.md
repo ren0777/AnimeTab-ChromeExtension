@@ -6,7 +6,7 @@ Everything runs client-side. User data stays local: preferences and anonymous fe
 
 ## Features
 
-- **Wallpapers** – three keyless sources: **Anime portraits** (nekos.best, with a Type selector: Waifu/Neko/Kitsune/Husbando/Any), **Anime scenes** (wallhaven anime category, full-resolution art), and **Anime landscapes** (wallhaven landscape tag); requests are SFW-filtered; shuffle or pin the current image; upload your own image/video (kept in IndexedDB). New tabs paint the cached wallpaper instantly, then crossfade to a fresh one.
+- **Wallpapers** – four keyless sources: **Anime portraits** (nekos.best, with a Type selector: Waifu/Neko/Kitsune/Husbando/Any), **Anime scenes** (wallhaven anime category, full-resolution art), **Anime landscapes** (wallhaven, tag-precise scenery filter), and **Photo of the day** (Bing daily archive — genuine landscape photography). Requests are SFW-filtered; shuffle, pin, or **save the current image to disk**; upload your own media (kept in IndexedDB). New tabs paint the cached wallpaper instantly, then crossfade to a fresh one; if a provider fails, the chain falls through sources until one works.
 - **Mood themes** – Wano / LoFi / Cute / Romantic / Fighting; auto-detected from each wallpaper's palette (light-pastel → Cute, dark-vibrant → LoFi) or set manually.
 - **Clock & greeting** – 24h or 12h format, hourly Japanese greeting (おはよう / こんにちは / こんばんは / おやすみ).
 - **Search bar** – engine picker (Google, DuckDuckGo, YouTube, AniList), autofocus, persists your choice.

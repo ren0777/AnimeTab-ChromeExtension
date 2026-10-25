@@ -8,11 +8,13 @@
   },
   "permissions": [
     "storage",
+    "downloads",
     "declarativeNetRequestWithHostAccess"
   ],
   "host_permissions": [
     "https://nekos.best/*",
     "https://wallhaven.cc/*",
+    "https://www.bing.com/*",
     "https://graphql.anilist.co/*"
   ],
   "background": {

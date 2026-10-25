@@ -1,5 +1,19 @@
 # AnimeTab v1.2.0 — Developer Guide
 
+## Release loop
+
+Every iteration ships through the same gate:
+
+```bash
+npm run release           # patch bump
+npm run release minor     # minor bump (features)
+```
+
+The script refuses to run on a dirty tree, bumps `manifest.json` +
+`package.json` + the `newtab.html` cache-bust in lockstep, runs the full
+`lint → test → build → package` suite, then commits and tags `v{version}`.
+Store zip lands in `release/` (gitignored by design — CI uploads artifacts).
+
 ## Quick Start
 
 ```bash

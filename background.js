@@ -1,6 +1,7 @@
 import {
   normalizeSource, sourceAttemptChain, buildNekosUrl, extractNekosUrl,
-  buildWallhavenUrl, wallhavenPage, wallhavenPaths
+  buildWallhavenUrl, wallhavenPage, wallhavenPaths, sceneryPathsFrom,
+  buildBingUrl, bingPaths, BING_IMAGE_DAYS
 } from '../src/lib/wallpaperSources.mjs';
 import { STORE_URL } from '../src/lib/growth.mjs';
 
@@ -221,15 +222,16 @@ const handleFetchAiring = async () => {
  * wallhaven request (they rate-limit anonymous traffic).
  */
 const refillWallhavenPool = async (sourceId) => {
-  // Search results carry no tags, so filtering happens server-side via the
-  // query. Retry fresh pages (tolerating API failures per attempt) before
-  // giving the fallback chain a chance.
+  // Retry fresh pages (tolerating API failures per attempt) before giving
+  // the fallback chain a chance. Scenery is ALSO filtered client-side by the
+  // returned tags: q= matches titles too, which leaks character art — without
+  // this filter the "Anime landscapes" source would show portraits again.
   let paths = [];
   let lastError = null;
   for (let attempt = 0; attempt < 3 && !paths.length; attempt++) {
     try {
       const data = await fetchJson(buildWallhavenUrl(sourceId, wallhavenPage()));
-      paths = wallhavenPaths(data);
+      paths = sourceId === 'scenery' ? sceneryPathsFrom(data) : wallhavenPaths(data);
     } catch (error) {
       lastError = error;
       console.warn(`[AnimeTab] ${sourceId} page attempt failed:`, error?.message || error);
@@ -253,12 +255,35 @@ const takeWallhavenImage = async (sourceId) => {
   return pickRandom(paths);
 };
 
+// --- Bing daily wallpapers --------------------------------------------------
+// Keyless public archive: the last 8 daily hero images (genuine landscape
+// photography, always SFW). One JSON request fills a 24h pool.
+const BING_POOL_KEY = 'bingPool';
+const BING_POOL_TTL_MS = 24 * 60 * 60 * 1000;
+
+const takeBingImage = async () => {
+  const pool = (await storageGet(BING_POOL_KEY))[BING_POOL_KEY];
+  if (pool && Date.now() - pool.fetchedAt < BING_POOL_TTL_MS && pool.paths?.length) {
+    const [path, ...rest] = pool.paths;
+    await storageSet({ [BING_POOL_KEY]: { ...pool, paths: rest } });
+    return path;
+  }
+  const data = await fetchJson(buildBingUrl(Math.floor(Math.random() * BING_IMAGE_DAYS)));
+  const paths = bingPaths(data);
+  if (!paths.length) throw new Error('No Bing wallpapers in archive response');
+  await storageSet({ [BING_POOL_KEY]: { paths, fetchedAt: Date.now() } });
+  return pickRandom(paths);
+};
+
 const resolveSource = async (sourceId, category) => {
   if (sourceId === 'nekos') {
     const data = await fetchJson(buildNekosUrl(category));
     const url = extractNekosUrl(data);
     if (!url) throw new Error(`No wallpaper URL in nekos.best response`);
     return url;
+  }
+  if (sourceId === 'photo') {
+    return takeBingImage();
   }
   return takeWallhavenImage(sourceId); // 'scenes' | 'scenery'
 };

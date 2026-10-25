@@ -34,3 +34,16 @@ export const sendMessage = (message) =>
       });
     } catch (e) { reject(e); }
   });
+
+/** Save a file via chrome.downloads (user picks the location). */
+export const downloadFile = (url, filename) =>
+  new Promise((resolve, reject) => {
+    if (!isExtension || !chrome.downloads?.download) return reject(new Error('Downloads API unavailable'));
+    try {
+      chrome.downloads.download({ url, filename: filename || 'download', saveAs: true }, (id) => {
+        const err = chrome.runtime.lastError;
+        if (err) reject(new Error(err.message));
+        else resolve(id);
+      });
+    } catch (e) { reject(e); }
+  });
