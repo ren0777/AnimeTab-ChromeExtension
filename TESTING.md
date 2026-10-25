@@ -24,7 +24,8 @@
 
 ## Quick links
 
-- [ ] Edit → reorder ↑/↓, add a link without scheme (`example.com`), remove one; reload → order persists
+- [ ] Edit mode: ✎ opens per-tile edit — rename and change URL (scheme-less like `example.com` accepted), ✓ saves, ✕ cancels; Leaving edit mode cancels open tile edits
+- [ ] Reorder ↑/↓, add a new link, remove one; reload → everything persists
 - [ ] Favicons render; a link without favicon shows an emoji fallback
 
 ## Airing card

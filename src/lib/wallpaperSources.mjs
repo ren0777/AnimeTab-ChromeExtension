@@ -38,8 +38,11 @@ export function buildWallhavenUrl(sourceId, page = 1) {
   if (sourceId === 'scenes') {
     params.set('categories', 'anime');
   } else {
-    params.set('categories', 'general');
-    params.set('q', 'anime landscape');
+    // Landscapes: stay inside the anime category and filter by the single
+    // strong "landscape" tag — a multi-word "anime landscape" query leaks
+    // generic character art (tags are matched loosely).
+    params.set('categories', 'anime');
+    params.set('q', 'landscape');
   }
   params.set('page', String(page));
   return `${WALLHAVEN_ABI}?${params.toString()}`;

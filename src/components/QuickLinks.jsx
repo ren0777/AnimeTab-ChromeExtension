@@ -15,6 +15,8 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
   const [editing, setEditing] = useState(false);
   const [favicons, setFavicons] = useState({});
   const [draft, setDraft] = useState({ name: '', url: '' });
+  const [editId, setEditId] = useState(null); // tile id currently being renamed/re-linked
+  const [editDraft, setEditDraft] = useState({ name: '', url: '' });
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +66,21 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
     await persist(next);
   };
 
+  const startEdit = (link) => {
+    setEditId(link.id);
+    setEditDraft({ name: link.name, url: link.url });
+  };
+
+  const saveEdit = async (id) => {
+    const url = prepareUrl(editDraft.url);
+    if (!url) return; // invalid edit → keep previous value
+    const name = editDraft.name.trim() || url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0];
+    const next = links.map((l) => (l.id === id ? { ...l, name, url } : l));
+    setEditId(null);
+    setEditDraft({ name: '', url: '' });
+    await persist(next);
+  };
+
   if (!links) return null;
 
   return (
@@ -73,7 +90,7 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
         <button
           type="button"
           className={`links-edit-btn ${editing ? 'active' : ''}`}
-          onClick={() => setEditing((e) => !e)}
+          onClick={() => setEditing((e) => { if (e) setEditId(null); return !e; })}
           aria-pressed={editing}
         >
           {editing ? 'Done' : 'Edit'}
@@ -82,25 +99,55 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
       <div className="quick-links-grid">
         {links.map((link) => (
           <div key={link.id} className="quick-link-cell">
-            <a
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="quick-link-card"
-              style={{ background: link.gradient }}
-              onClick={() => { /* navigation is natural */ }}
-            >
-              {favicons[link.name]
-                ? <img className="link-favicon" src={favicons[link.name]} alt="" width="22" height="22" loading="lazy" />
-                : <div className="link-icon">{link.icon}</div>}
-              <div className="link-name">{link.name}</div>
-            </a>
-            {editing && (
-              <div className="link-controls">
-                <button type="button" title="Move up" onClick={() => persist(moveLink(links, link.id, 'up'))}>↑</button>
-                <button type="button" title="Move down" onClick={() => persist(moveLink(links, link.id, 'down'))}>↓</button>
-                <button type="button" className="danger" title="Remove" onClick={() => persist(links.filter((l) => l.id !== link.id).map((l, i) => ({ ...l, id: i + 1 })))}>✕</button>
-              </div>
+            {editing && editId === link.id ? (
+              <form
+                className="link-edit-form"
+                onSubmit={(e) => { e.preventDefault(); saveEdit(link.id); }}
+              >
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={editDraft.name}
+                  onChange={(e) => setEditDraft((d) => ({ ...d, name: e.target.value }))}
+                  maxLength={24}
+                  autoFocus
+                />
+                <input
+                  type="text"
+                  placeholder="example.com"
+                  value={editDraft.url}
+                  onChange={(e) => setEditDraft((d) => ({ ...d, url: e.target.value }))}
+                  inputMode="url"
+                />
+                <div className="link-edit-actions">
+                  <button type="submit" title="Save">✓</button>
+                  <button type="button" title="Cancel" onClick={() => setEditId(null)}>✕</button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="quick-link-card"
+                  style={{ background: link.gradient }}
+                  onClick={() => { /* navigation is natural */ }}
+                >
+                  {favicons[link.name]
+                    ? <img className="link-favicon" src={favicons[link.name]} alt="" width="22" height="22" loading="lazy" />
+                    : <div className="link-icon">{link.icon}</div>}
+                  <div className="link-name">{link.name}</div>
+                </a>
+                {editing && (
+                  <div className="link-controls">
+                    <button type="button" className="primary" title="Edit link" onClick={() => startEdit(link)}>✎</button>
+                    <button type="button" title="Move up" onClick={() => persist(moveLink(links, link.id, 'up'))}>↑</button>
+                    <button type="button" title="Move down" onClick={() => persist(moveLink(links, link.id, 'down'))}>↓</button>
+                    <button type="button" className="danger" title="Remove" onClick={() => persist(links.filter((l) => l.id !== link.id).map((l, i) => ({ ...l, id: i + 1 })))}>✕</button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}

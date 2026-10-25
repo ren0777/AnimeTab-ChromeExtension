@@ -83,3 +83,51 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Inline per-tile edit form (rename / change URL) */
+.link-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(12, 12, 18, 0.9);
+  border: 1px solid rgba(255, 107, 138, 0.35);
+  box-sizing: border-box;
+}
+
+.link-edit-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font-size: 11.5px;
+  outline: none;
+}
+
+.link-edit-form input:focus { border-color: rgba(255, 107, 138, 0.55); }
+.link-edit-form input::placeholder { color: rgba(255, 255, 255, 0.35); }
+
+.link-edit-actions { display: flex; gap: 6px; }
+
+.link-edit-actions button {
+  flex: 1;
+  padding: 5px 0;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.link-edit-actions button[type="submit"] {
+  background: linear-gradient(90deg, #ff8a65, #ff6b8a);
+  font-weight: 700;
+}
+
+.link-controls button.primary { color: #ffb4c4; }
