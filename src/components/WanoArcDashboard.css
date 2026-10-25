@@ -553,6 +553,23 @@
   align-items: flex-end;
 }
 
+/* The dock's buttons got wider with Focus/Ambient/Invite, so below ~1024px
+   (the point where everything stops fitting side by side) the row would run
+   underneath the fixed merch card (bottom-left) and wrap over the quote
+   card. Lift the dock above the merch card's band and reserve flow space
+   for both so content can't rest underneath them. */
+@media (max-width: 1023px) {
+  .bottom-right-dock {
+    bottom: 96px; /* clears the merch card: 18px bottom + ~66px card + Affiliate chip */
+    right: 14px;
+    left: 14px;
+  }
+
+  .wano-container {
+    padding-bottom: 240px; /* reserved band for the raised dock + merch card */
+  }
+}
+
 .wallpaper-studio,
 .premium-upsell-card {
   width: 100%;

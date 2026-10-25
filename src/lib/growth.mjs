@@ -2,7 +2,9 @@
 // Everything here is local: invite actions are just counters the user earns
 // cosmetic unlocks with — nothing is transmitted anywhere.
 
-export const STORE_URL = 'https://chromewebstore.google.com/detail/animetab/REPLACE_WITH_STORE_ID';
+// Chrome Web Store item ID: ankkpnnnciabjkpkjonnaffmdifkeank (pending review).
+export const STORE_URL =
+  'https://chromewebstore.google.com/detail/animetab/ankkpnnnciabjkpkjonnaffmdifkeank';
 
 export const GROWTH_KEY = 'growthState'; // { inviteCount: n }
 export const MERCH_HIDDEN_KEY = 'merchHidden';

@@ -44,6 +44,7 @@ const addDir = (rel) => {
 
 ['manifest.json', 'newtab.html', 'privacy.html', 'background.js', 'merch.json', 'quotes.json'].forEach(addFile);
 addFile('src/lib/wallpaperSources.mjs'); // imported (as a module) by background.js
+addFile('src/lib/growth.mjs');           // imported (as a module) by background.js
 addDir('dist');
 addDir('assets/fallback');
 ['assets/icon16.png', 'assets/icon48.png', 'assets/icon128.png'].forEach(addFile);

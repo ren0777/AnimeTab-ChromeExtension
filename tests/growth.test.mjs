@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   REWARDS, unlockedRewards, nextRewardAt, streakFromMetrics,
-  shareUrlFor, encodeSetup, decodeSetup, SETUP_CODE_VERSION
+  shareUrlFor, encodeSetup, decodeSetup, SETUP_CODE_VERSION, STORE_URL
 } from '../src/lib/growth.mjs';
 
 const day = (offset, opens = 2) => {
@@ -39,6 +39,11 @@ test('streakFromMetrics waits until today has an open', () => {
 
 test('streakFromMetrics returns 0 for empty history', () => {
   assert.equal(streakFromMetrics({}, new Date()), 0);
+});
+
+test('STORE_URL points at the real Web Store listing (no placeholder)', () => {
+  assert.match(STORE_URL, /^https:\/\/chromewebstore\.google\.com\/detail\/animetab\/[a-p]{32}$/);
+  assert.ok(!STORE_URL.includes('REPLACE_WITH'), 'placeholder must never reach a shipped share link');
 });
 
 test('shareUrlFor builds deep links per channel', () => {

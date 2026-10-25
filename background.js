@@ -2,6 +2,7 @@ import {
   normalizeSource, fallbackSourceFor, buildNekosUrl, extractNekosUrl,
   buildWallhavenUrl, wallhavenPage, wallhavenPaths
 } from '../src/lib/wallpaperSources.mjs';
+import { STORE_URL } from '../src/lib/growth.mjs';
 
 // Bundled images used when every remote source fails.
 const FALLBACK_WALLPAPERS = [
@@ -10,6 +11,43 @@ const FALLBACK_WALLPAPERS = [
   'assets/fallback/fallback3.jpg',
   'assets/fallback/fallback4.jpg'
 ];
+
+// --- nekos.best User-Agent --------------------------------------------------
+// nekos.best rejects any browser User-Agent with HTTP 403 and asks for the
+// "AppName (contact)" format instead (docs.nekos.best → API Reference). The
+// extension cannot override User-Agent from fetch() (forbidden header) nor
+// via a browser setting, so a declarativeNetRequest session rule rewrites the
+// header on the wire. "declarativeNetRequestWithHostAccess" adds no new
+// permission warning while the https://nekos.best/* host permission is already
+// declared. Session rules reset with the browser, so (re)install idempotently
+// on every service-worker start.
+const NEKOS_UA_RULE_ID = 8831;
+
+const installNekosUaRule = () => {
+  const dnr = chrome.declarativeNetRequest;
+  if (!dnr?.updateSessionRules) return; // DNR unavailable → wallhaven fallback covers us
+  dnr.updateSessionRules({
+    removeRuleIds: [NEKOS_UA_RULE_ID],
+    addRules: [{
+      id: NEKOS_UA_RULE_ID,
+      priority: 1,
+      action: {
+        type: 'modifyHeaders',
+        requestHeaders: [{ header: 'User-Agent', operation: 'set', value: `AnimeTab (${STORE_URL})` }]
+      },
+      condition: {
+        // Matches nekos.best and its subdomains (e.g. the i.* image host);
+        // every resource type — service-worker fetch() has no distinct type.
+        requestDomains: ['nekos.best']
+      }
+    }]
+  })
+    .then(() => console.log('[AnimeTab] nekos.best User-Agent rule installed'))
+    .catch((error) =>
+      console.warn('[AnimeTab] User-Agent rule not installed:', error?.message || error));
+};
+
+installNekosUaRule();
 
 const REQUEST_TIMEOUT_MS = 9000; // wallhaven serves large images
 const WALLHAVEN_POOL_KEY = 'wallhavenPool';

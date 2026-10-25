@@ -33,7 +33,7 @@ npm run dev        # webpack watch mode
 npm test           # node:test unit tests (pure logic in src/lib)
 npm run lint       # eslint
 npm run build      # production bundle → dist/
-npm run package    # store zip → release/animetab-v1.2.0.zip
+npm run package    # store zip → release/animetab-v1.4.1.zip
 ```
 
 See `DEV-README.md` for architecture and `TESTING.md` for the QA checklist.

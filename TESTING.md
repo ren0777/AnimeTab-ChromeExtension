@@ -1,4 +1,4 @@
-# AnimeTab v1.2.0 — QA Checklist
+# AnimeTab v1.4.1 — QA Checklist
 
 ## Load
 
@@ -11,7 +11,8 @@
 - [ ] Studio → Source select (Anime portraits / Anime scenes / Anime landscapes) fetches from the chosen provider and persists; Type row appears only for Anime portraits
 - [ ] Studio → Type select (dark popup): Waifu/Neko/Kitsune/Husbando fetches a matching portrait and persists; "Any type" restores the random mix
 - [ ] Wallpaper Studio: Shuffle fetches a new image; Pin keeps the same image across tabs; Unpin restores random
-- [ ] Upload an image (and a video); Reload tab → custom background returns; Reset reverts
+- [ ] Upload an image (and a video): the video plays muted on loop; reload → custom background returns and the video still plays with no console errors; Reset reverts
+- [ ] Pin works on a random wallpaper, on a wallhaven image and on a bundled fallback (Viewer keeps the same image across new tabs); with a custom upload active the Pin button is hidden (uploads persist on their own)
 - [ ] Mood picker changes palette and stops auto-detection from overwriting it on later tabs; light wallpaper auto-lands on Cute, dark on LoFi only while mood never manually chosen
 
 ## Clock, search, quote
@@ -35,7 +36,7 @@
 - [ ] 🔥 streak pill appears after two consecutive days of use (manipulate a `days` bucket to test)
 - [ ] Focus 25: starts, ticks in all tabs, cancel works; letting it finish chimes + toast
 - [ ] Ambient button cycles 🌧️/💿/🌊/🔇 with audible generative loops; new tab stays silent but remembers mode
-- [ ] Invite hub: all six share actions increment the counter; rewards unlock at 3/5/10 (neon rain visible, quote card restyles, clock goes hologram)
+- [ ] Invite hub: all six share actions increment the counter and every link carries the live store URL (`chromewebstore.google.com/detail/animetab/…`); rewards unlock at 3/5/10 (neon rain visible, quote card restyles, clock goes hologram)
 - [ ] Export produces a readable code; pasting it in a friend-with-reset state applies links/theme/engine/clock
 - [ ] Studio → untick "Show merch card" hides the card immediately; re-tick restores
 
@@ -47,5 +48,5 @@
 
 ## Packaging
 
-- [ ] `npm run package` → `release/animetab-v1.2.0.zip` (~1.6 MB), contains manifest/newtab/dist/assets only
+- [ ] `npm run package` → `release/animetab-v1.4.1.zip` (~1.6 MB), contains manifest/newtab/dist/assets only
 - [ ] zip loads unpacked (rename to .crx not required) and behaves identically

@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "AnimeTab",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Beautiful anime wallpapers, clock, daily quotes, airing countdowns, and curated merch every time you open a new tab.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "declarativeNetRequestWithHostAccess"
   ],
   "host_permissions": [
     "https://nekos.best/*",

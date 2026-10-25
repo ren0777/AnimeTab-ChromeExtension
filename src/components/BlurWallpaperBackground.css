@@ -29,6 +29,23 @@
   transform: translateZ(0); /* GPU acceleration */
 }
 
+/* Custom video wallpapers play through a <video> layer styled like the image
+   one above, so the blur/fade transitions look the same. */
+.blur-wallpaper-video {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 120%;
+  min-width: 120%;
+  min-height: 120%;
+  object-fit: cover;
+  /* Wallpapers are mostly portrait art; bias toward the top so faces aren't cropped */
+  object-position: center 15%;
+  will-change: filter, opacity;
+  transform: translateZ(0); /* GPU acceleration */
+  pointer-events: none;
+}
+
 .blur-wallpaper-overlay {
   position: absolute;
   top: 0;
@@ -82,6 +99,10 @@
 .blur-wallpaper-container.has-error .blur-wallpaper-layer {
   background-image: none;
   background-color: #1a1a2e;
+}
+
+.blur-wallpaper-container.has-error .blur-wallpaper-video {
+  display: none;
 }
 
 .blur-wallpaper-container.has-error::before {

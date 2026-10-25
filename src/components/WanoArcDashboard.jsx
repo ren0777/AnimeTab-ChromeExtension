@@ -6,6 +6,7 @@ import AiringCard from './AiringCard';
 import FocusTimer from './FocusTimer';
 import AmbientButton from './AmbientButton';
 import InviteHub from './InviteHub';
+import StyleSelect from './StyleSelect';
 import { formatTime, greetingAt } from '../lib/clock.mjs';
 import { storageGet, storageSet } from '../lib/platform.mjs';
 import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
@@ -90,7 +91,7 @@ const WanoArcDashboard = ({
   // ...and the mood/theme.
   useEffect(() => {
     if (!onThemeChange) return undefined;
-    const handler = (e) => onThemeChange(e.detail);
+    const handler = (e) => onThemeChange(e.detail, { userAction: true });
     window.addEventListener('animetab:theme', handler);
     return () => window.removeEventListener('animetab:theme', handler);
   }, [onThemeChange]);
@@ -237,67 +238,56 @@ const WanoArcDashboard = ({
                 <button type="button" className="wallpaper-btn" onClick={onShuffle} title="Fetch a new random wallpaper">
                   🎲 Shuffle
                 </button>
-                <button
-                  type="button"
-                  className={`wallpaper-btn ${isPinned ? 'danger' : ''}`}
-                  onClick={() => onPin && onPin(!isPinned)}
-                  title={isPinned ? 'Unpin and go back to random' : 'Keep this wallpaper'}
-                >
-                  {isPinned ? '📌 Unpin' : '📌 Pin'}
-                </button>
+                {!customEnabled && (
+                  <button
+                    type="button"
+                    className={`wallpaper-btn ${isPinned ? 'danger' : ''}`}
+                    onClick={() => onPin && onPin(!isPinned)}
+                    title={isPinned ? 'Unpin and go back to random' : 'Keep this wallpaper'}
+                  >
+                    {isPinned ? '📌 Unpin' : '📌 Pin'}
+                  </button>
+                )}
               </div>
               <div className="studio-row">
-                <label className="studio-label" htmlFor="studio-source">Source</label>
-                <select
-                  id="studio-source"
-                  className="studio-select"
-                  value={wallpaperSource || 'nekos'}
-                  onChange={(e) => onSourceChange && onSourceChange(e.target.value)}
+                <label className="studio-label">Source</label>
+                <StyleSelect
+                  ariaLabel="Wallpaper source"
                   title="Where wallpapers come from"
-                >
-                  {WALLPAPER_SOURCES.map((s) => (
-                    <option key={s.id} value={s.id}>{s.label}</option>
-                  ))}
-                </select>
+                  value={wallpaperSource || 'nekos'}
+                  onChange={(v) => onSourceChange && onSourceChange(v)}
+                  options={WALLPAPER_SOURCES.map((s) => ({ value: s.id, label: s.label }))}
+                />
               </div>
               {(wallpaperSource || 'nekos') === 'nekos' && (
                 <div className="studio-row">
-                  <label className="studio-label" htmlFor="studio-type">Type</label>
-                  <select
-                    id="studio-type"
-                    className="studio-select"
-                    value={wallpaperCategory || 'any'}
-                    onChange={(e) => onCategoryChange && onCategoryChange(e.target.value)}
+                  <label className="studio-label">Type</label>
+                  <StyleSelect
+                    ariaLabel="Portrait type"
                     title="Portrait category from nekos.best"
-                  >
-                    {WALLPAPER_CATEGORIES.map((c) => (
-                      <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
-                    ))}
-                  </select>
+                    value={wallpaperCategory || 'any'}
+                    onChange={(v) => onCategoryChange && onCategoryChange(v)}
+                    options={WALLPAPER_CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABELS[c] || c }))}
+                  />
                 </div>
               )}
               <div className="studio-row">
-                <label className="studio-label" htmlFor="studio-mood">Mood</label>
-                <select
-                  id="studio-mood"
-                  className="studio-select"
+                <label className="studio-label">Mood</label>
+                <StyleSelect
+                  ariaLabel="Mood theme"
                   value={theme}
-                  onChange={(e) => onThemeChange && onThemeChange(e.target.value, { userAction: true })}
-                >
-                  {themeOptions.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
+                  onChange={(v) => onThemeChange && onThemeChange(v, { userAction: true })}
+                  options={themeOptions.map((t) => ({ value: t.value, label: t.label }))}
+                />
               </div>
               <div className="studio-row">
-                <label className="studio-label" htmlFor="studio-clock">Clock</label>
-                <select
-                  id="studio-clock"
-                  className="studio-select"
+                <label className="studio-label">Clock</label>
+                <StyleSelect
+                  ariaLabel="Clock format"
                   value={hour12 ? '12' : '24'}
-                  onChange={(e) => setClockFormat(e.target.value)}
-                >
-                  <option value="24">24-hour</option>
-                  <option value="12">12-hour</option>
-                </select>
+                  onChange={(v) => setClockFormat(v)}
+                  options={[{ value: '24', label: '24-hour' }, { value: '12', label: '12-hour' }]}
+                />
               </div>
               <label className="studio-row studio-check" htmlFor="studio-merch">
                 <input

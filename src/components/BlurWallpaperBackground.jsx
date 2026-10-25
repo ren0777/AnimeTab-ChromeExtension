@@ -16,6 +16,7 @@ import './BlurWallpaperBackground.css';
  */
 const BlurWallpaperBackground = ({
   imageUrl,
+  isVideo = false,
   fallbackUrl = null,
   blurAmount = 20,
   transitionDuration = 800,
@@ -49,6 +50,28 @@ const BlurWallpaperBackground = ({
     });
   };
 
+  // Probe a video the same way (an <img> probe would always fail and log
+  // console errors for custom video uploads).
+  const preloadVideo = (url) => {
+    return new Promise((resolve, reject) => {
+      if (!url) {
+        reject(new Error('No video URL provided'));
+        return;
+      }
+
+      const video = document.createElement('video');
+      video.muted = true;
+      video.preload = 'auto';
+      video.onloadeddata = () => resolve(video);
+      video.onerror = () => reject(new Error(`Failed to load video: ${url}`));
+      video.src = url;
+    });
+  };
+
+  // Pick the right loader per render: videos must use the <video> probe (an
+  // <img> probe would always fail and log console errors for video uploads).
+  const preloadMedia = isVideo ? preloadVideo : preloadImage;
+
   // Handle image transition with blur effect
   const transitionToImage = async (newUrl) => {
     if (isTransitioningRef.current || newUrl === currentImage) return;
@@ -60,7 +83,7 @@ const BlurWallpaperBackground = ({
       setOpacity(0);
 
       // Preload the new image
-      await preloadImage(newUrl);
+      await preloadMedia(newUrl);
 
       // After a brief delay, swap images and fade in
       setTimeout(async () => {
@@ -102,7 +125,7 @@ const BlurWallpaperBackground = ({
 
     const loadInitialImage = async () => {
       try {
-        await preloadImage(imageUrl);
+        await preloadMedia(imageUrl);
         setCurrentImage(imageUrl);
         setError(false);
         // Quick fade-in from blur
@@ -126,7 +149,7 @@ const BlurWallpaperBackground = ({
     };
 
     loadInitialImage();
-  }, [imageUrl, blurAmount, transitionDuration]);
+  }, [imageUrl, isVideo, blurAmount, transitionDuration]);
 
   // Watch for imageUrl prop changes
   useEffect(() => {
@@ -144,23 +167,43 @@ const BlurWallpaperBackground = ({
 
   const displayImage = currentImage || fallbackUrl;
 
+  // Videos render as a real <video> element (background-image can't play
+  // them); the layer style object below is shared so blur/fade transitions
+  // behave identically.
+  const layerStyle = {
+    filter: `blur(${blurLevel}px) brightness(${0.7 + overlayOpacity * 0.3})`,
+    opacity: opacity,
+    transition: `filter ${transitionDuration}ms cubic-bezier(0.4, 0, 0.2, 1), opacity ${transitionDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`
+  };
+
   return (
     <div
       className={`blur-wallpaper-container ${className} ${error ? 'has-error' : ''}`}
       data-testid={testId}
     >
       {/* Background image with blur effect */}
-      {displayImage && (
-        <div
-          className="blur-wallpaper-layer"
-          style={{
-            backgroundImage: `url(${displayImage})`,
-            filter: `blur(${blurLevel}px) brightness(${0.7 + overlayOpacity * 0.3})`,
-            opacity: opacity,
-            transition: `filter ${transitionDuration}ms cubic-bezier(0.4, 0, 0.2, 1), opacity ${transitionDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`
-          }}
+      {isVideo && currentImage ? (
+        <video
+          className="blur-wallpaper-video"
+          src={currentImage}
+          style={layerStyle}
+          autoPlay
+          loop
+          muted
+          playsInline
           aria-hidden="true"
         />
+      ) : (
+        displayImage && (
+          <div
+            className="blur-wallpaper-layer"
+            style={{
+              backgroundImage: `url(${displayImage})`,
+              ...layerStyle
+            }}
+            aria-hidden="true"
+          />
+        )
       )}
 
       {/* Gradient overlay for depth and text readability */}
@@ -190,6 +233,8 @@ const BlurWallpaperBackground = ({
 BlurWallpaperBackground.propTypes = {
   /** URL of the current background image */
   imageUrl: PropTypes.string.isRequired,
+  /** True when imageUrl is a playing video (rendered via <video>) */
+  isVideo: PropTypes.bool,
   /** Fallback image URL if main fails to load */
   fallbackUrl: PropTypes.string,
   /** Blur intensity in pixels (default: 20) */

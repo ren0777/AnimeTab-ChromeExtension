@@ -19,6 +19,7 @@ const analytics = createAnalytics({
 const App = () => {
   const {
     wallpaperUrl,
+    wallpaperIsVideo,
     customEnabled,
     isPinned,
     uploadCustomWallpaper,
@@ -71,6 +72,7 @@ const App = () => {
     <>
       <BlurWallpaperBackground
         imageUrl={wallpaperUrl || fallbackWallpaper}
+        isVideo={wallpaperIsVideo}
         blurAmount={20}
         transitionDuration={800}
         overlayOpacity={0.5}

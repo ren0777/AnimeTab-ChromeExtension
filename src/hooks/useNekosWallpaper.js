@@ -17,6 +17,12 @@ const CUSTOM_MIME_KEY = 'customBackgroundMime';
 const CUSTOM_ENABLED_KEY = 'customBackgroundEnabled';
 const CUSTOM_REF_KEY = 'customBackgroundRef';
 
+// Pinnable URLs: remote images plus the bundled fallbacks (stable
+// chrome-extension:// paths). blob: URLs (custom uploads) die on reload and
+// uploads already persist in IndexedDB, so pinning those means nothing —
+// that gap is what made Pin/Unpin silently do nothing on fallback days.
+const PINNABLE_URL_RE = /^(https?:\/\/|chrome-extension:\/\/)/;
+
 // Must mirror the categories the background worker knows (background.js).
 export const WALLPAPER_CATEGORIES = ['any', 'waifu', 'neko', 'kitsune', 'husbando'];
 const DEFAULT_CATEGORY = 'any';
@@ -30,6 +36,19 @@ const preloadImage = (url) =>
     img.onload = () => resolve(url);
     img.onerror = () => reject(new Error('Image failed to load'));
     img.src = url;
+  });
+
+// Videos must never go through the <img> probe above (they fail it and log
+// console errors); a muted <video> works for object URLs and direct URLs.
+const preloadVideo = (url) =>
+  new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.muted = true;
+    video.loop = true;
+    video.preload = 'auto';
+    video.onloadeddata = () => resolve(url);
+    video.onerror = () => reject(new Error('Video failed to load'));
+    video.src = url;
   });
 
 // Very small, fast mood detector. Draws a downsized copy of the image to a
@@ -130,6 +149,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
   const [error, setError] = useState(null);
   const [customEnabled, setCustomEnabled] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
+  const [wallpaperIsVideo, setWallpaperIsVideo] = useState(false);
   const [themeMode, setThemeMode] = useState('wano');
   const [wallpaperCategory, setWallpaperCategoryState] = useState('any');
   const [wallpaperSource, setWallpaperSourceState] = useState('nekos');
@@ -144,10 +164,12 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
     objectUrlRef.current = null;
   };
 
-  const setBlobWallpaper = useCallback((blob) => {
+  const setBlobWallpaper = useCallback((blob, mime = '') => {
     revokeObjectUrl();
     const objUrl = URL.createObjectURL(blob);
     objectUrlRef.current = objUrl;
+    // Custom uploads may be videos; render them with a <video> layer.
+    setWallpaperIsVideo(String(mime || blob.type || '').toLowerCase().startsWith('video/'));
     setWallpaperUrl(objUrl);
     return objUrl;
   }, []);
@@ -164,6 +186,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
     await preloadImage(url);
     await storageSet({ [STORAGE_KEY]: url, [ALT_STORAGE_KEY]: url, [CUSTOM_ENABLED_KEY]: false });
     revokeObjectUrl();
+    setWallpaperIsVideo(false);
     setWallpaperUrl(url);
   }, []);
 
@@ -196,7 +219,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
         try {
           const blob = await idbGet(stored[CUSTOM_REF_KEY]);
           if (blob) {
-            setBlobWallpaper(blob);
+            setBlobWallpaper(blob, stored[CUSTOM_MIME_KEY]);
             setCustomEnabled(true);
             setIsPinned(false);
             setLoading(false);
@@ -212,6 +235,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
           await preloadImage(pinned);
           revokeObjectUrl();
           setWallpaperUrl(pinned);
+          setWallpaperIsVideo(false);
           setCustomEnabled(false);
           setIsPinned(true);
           setLoading(false);
@@ -232,6 +256,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
             await preloadImage(candidate);
             revokeObjectUrl();
             setWallpaperUrl(candidate);
+            setWallpaperIsVideo(false);
             shownCached = true;
             setCustomEnabled(false);
             setLoading(false);
@@ -279,7 +304,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
   }, [loadWallpaper, analytics]);
 
   const pinWallpaper = useCallback(async (pinned = true) => {
-    if (pinned && wallpaperUrl && /^https?:\/\//.test(wallpaperUrl)) {
+    if (pinned && wallpaperUrl && PINNABLE_URL_RE.test(wallpaperUrl)) {
       await storageSet({ [PINNED_URL_KEY]: wallpaperUrl });
       setIsPinned(true);
     } else {
@@ -318,7 +343,9 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
         reader.readAsDataURL(file);
       });
 
+      // Validate before saving: <img> probe for images, muted <video> for videos.
       if (file.type.startsWith('image/')) await preloadImage(dataUrl);
+      else await preloadVideo(dataUrl);
 
       // Store the blob in IndexedDB to avoid chrome.storage quota limits.
       const blob = await (await fetch(dataUrl)).blob();
@@ -336,7 +363,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
         [PINNED_URL_KEY]: '',
         [CUSTOM_DATA_KEY]: ''
       });
-      setBlobWallpaper(blob);
+      setBlobWallpaper(blob, file.type);
       setCustomEnabled(true);
       setIsPinned(false);
       await analytics.track(EVENT_TYPES.WALLPAPER_UPLOAD);
@@ -358,6 +385,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
         [STORAGE_KEY]: '', [ALT_STORAGE_KEY]: '', [CUSTOM_DATA_KEY]: ''
       });
       setCustomEnabled(false);
+      setWallpaperIsVideo(false);
       setWallpaperUrl(null);
       await updateThemeMode('wano', { userAction: true });
       await loadWallpaper({ forceNew: true });
@@ -371,7 +399,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
   }, [loadWallpaper]);
 
   return {
-    wallpaperUrl, loading, error, customEnabled, isPinned, themeMode,
+    wallpaperUrl, loading, error, customEnabled, isPinned, wallpaperIsVideo, themeMode,
     wallpaperCategory, wallpaperSource,
     refreshWallpaper: () => loadWallpaper({ forceNew: true }),
     shuffleWallpaper,

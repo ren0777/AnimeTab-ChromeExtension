@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SEARCH_ENGINES, DEFAULT_ENGINE, normalizeEngine, buildSearchUrl } from '../lib/search.mjs';
 import { storageGet, storageSet } from '../lib/platform.mjs';
+import StyleSelect from './StyleSelect';
 import './SearchBar.css';
 
 const ENGINE_KEY = 'searchEngine';
@@ -52,15 +53,15 @@ export default function SearchBar() {
           className="search-input"
           aria-label="Search the web"
         />
-        <label className="engine-select">
+        <label className="engine-select-wrap">
           <span className="visually-hidden">Search engine</span>
-          <select
+          <StyleSelect
+            className="engine-select"
+            ariaLabel="Search engine"
             value={engine}
-            onChange={(e) => changeEngine(e.target.value)}
-            title="Search engine"
-          >
-            {SEARCH_ENGINES.map((e) => <option key={e.id} value={e.id}>{e.label}</option>)}
-          </select>
+            onChange={(v) => changeEngine(v)}
+            options={SEARCH_ENGINES.map((e) => ({ value: e.id, label: e.label }))}
+          />
         </label>
       </div>
     </form>
