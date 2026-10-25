@@ -3,10 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from './SearchBar';
 import QuickLinks from './QuickLinks';
 import AiringCard from './AiringCard';
+import FocusTimer from './FocusTimer';
+import AmbientButton from './AmbientButton';
+import InviteHub from './InviteHub';
 import { formatTime, greetingAt } from '../lib/clock.mjs';
 import { storageGet, storageSet } from '../lib/platform.mjs';
-import { createAnalytics } from '../lib/analytics.mjs';
+import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
+import { streakFromMetrics, MERCH_HIDDEN_KEY } from '../lib/growth.mjs';
 import './StudioPanel.css';
+import './HabitDock.css';
+import './Rewards.css';
 import './WanoArcDashboard.css';
 
 const CLOCK_KEY = 'clockFormat';
@@ -28,6 +34,7 @@ const WanoArcDashboard = ({
   onPin,
   themeMode,
   onThemeChange,
+  rewards = [],
   analytics = createAnalytics({ get: async () => ({}), set: async () => ({}) })
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -35,6 +42,8 @@ const WanoArcDashboard = ({
   const [hour12, setHour12] = useState(false);
   const [showStudio, setShowStudio] = useState(false);
   const [studioMetrics, setStudioMetrics] = useState(null);
+  const [streak, setStreak] = useState(0);
+  const [merchVisible, setMerchVisible] = useState(true);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -46,7 +55,22 @@ const WanoArcDashboard = ({
     (async () => {
       const stored = (await storageGet([CLOCK_KEY]))[CLOCK_KEY];
       setHour12(stored === '12');
+      const metrics = await analytics.snapshot();
+      setStreak(streakFromMetrics(metrics.days || {}));
+      const hidden = (await storageGet([MERCH_HIDDEN_KEY]))[MERCH_HIDDEN_KEY];
+      setMerchVisible(!hidden);
     })();
+  }, [analytics]);
+
+  // Setup import can change the clock format from anywhere in the app.
+  useEffect(() => {
+    const handler = (e) => {
+      const value = e.detail === '12' ? '12' : '24';
+      setHour12(value === '12');
+      storageSet({ [CLOCK_KEY]: value });
+    };
+    window.addEventListener('animetab:clock-format', handler);
+    return () => window.removeEventListener('animetab:clock-format', handler);
   }, []);
 
   useEffect(() => {
@@ -82,6 +106,13 @@ const WanoArcDashboard = ({
     if (file && onUploadCustom) onUploadCustom(file);
   };
 
+  const toggleMerch = async (visible) => {
+    setMerchVisible(visible);
+    await storageSet({ [MERCH_HIDDEN_KEY]: visible ? '' : '1' });
+    window.dispatchEvent(new CustomEvent('animetab:merch-visibility', { detail: visible }));
+    if (analytics) await analytics.track(EVENT_TYPES.MERCH_TOGGLE);
+  };
+
   const openStudio = async () => {
     setShowStudio((s) => !s);
     if (analytics) setStudioMetrics(await analytics.snapshot());
@@ -91,7 +122,7 @@ const WanoArcDashboard = ({
   const greeting = greetingAt(currentTime.getHours());
 
   return (
-    <div className="wano-dashboard" data-theme={theme}>
+    <div className="wano-dashboard" data-theme={theme} data-growth={rewards.join(' ')}>
       {theme === 'wano' && (
         <motion.div
           className="wano-bg"
@@ -117,9 +148,16 @@ const WanoArcDashboard = ({
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="greeting-text">
-            <span className="greeting-ja">{greeting.ja}</span>
-            <span className="greeting-romaji">{greeting.romaji}</span>
+          <div className="greeting-row">
+            <div className="greeting-text">
+              <span className="greeting-ja">{greeting.ja}</span>
+              <span className="greeting-romaji">{greeting.romaji}</span>
+            </div>
+            {streak > 0 && (
+              <span className="streak-pill" title="Days in a row with AnimeTab open">
+                🔥 {streak} day{streak === 1 ? '' : 's'}
+              </span>
+            )}
           </div>
         </motion.header>
 
@@ -209,6 +247,15 @@ const WanoArcDashboard = ({
                   <option value="12">12-hour</option>
                 </select>
               </div>
+              <label className="studio-row studio-check" htmlFor="studio-merch">
+                <input
+                  id="studio-merch"
+                  type="checkbox"
+                  checked={merchVisible}
+                  onChange={(e) => toggleMerch(e.target.checked)}
+                />
+                Show merch card
+              </label>
               {customEnabled && onRemoveCustom && (
                 <button type="button" className="wallpaper-btn danger" onClick={onRemoveCustom}>
                   Reset to wallpapers
@@ -279,6 +326,9 @@ const WanoArcDashboard = ({
           >
             🖼️ Change Wallpaper
           </button>
+          <FocusTimer analytics={analytics} />
+          <AmbientButton />
+          <InviteHub analytics={analytics} />
           {customEnabled && onRemoveCustom && (
             <button
               type="button"
@@ -286,7 +336,7 @@ const WanoArcDashboard = ({
               onClick={onRemoveCustom}
               title="Remove custom wallpaper"
             >
-              ✕ Reset
+              ✕
             </button>
           )}
           <a
@@ -298,7 +348,6 @@ const WanoArcDashboard = ({
             style={{ marginLeft: 8 }}
           >
             <span className="icon">☕</span>
-            Support
           </a>
         </div>
       </motion.div>

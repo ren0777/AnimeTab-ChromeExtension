@@ -28,6 +28,15 @@
 
 - [ ] Shows up to 5 upcoming episodes with relative countdowns; hides if API unreachable
 
+## Habits & growth
+
+- [ ] 🔥 streak pill appears after two consecutive days of use (manipulate a `days` bucket to test)
+- [ ] Focus 25: starts, ticks in all tabs, cancel works; letting it finish chimes + toast
+- [ ] Ambient button cycles 🌧️/💿/🌊/🔇 with audible generative loops; new tab stays silent but remembers mode
+- [ ] Invite hub: all six share actions increment the counter; rewards unlock at 3/5/10 (neon rain visible, quote card restyles, clock goes hologram)
+- [ ] Export produces a readable code; pasting it in a friend-with-reset state applies links/theme/engine/clock
+- [ ] Studio → untick "Show merch card" hides the card immediately; re-tick restores
+
 ## Merch & analytics
 
 - [ ] Merch card bottom-left, rotates hourly + manual →; links always amazon.com, with `&tag=` once configured

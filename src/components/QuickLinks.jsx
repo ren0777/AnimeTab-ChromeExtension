@@ -18,7 +18,7 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const load = async () => {
       const stored = (await storageGet([LINKS_STORAGE_KEY]))[LINKS_STORAGE_KEY];
       if (cancelled) return;
       setLinks(normalizeLinkList(stored) || normalizeLinkList(DEFAULT_LINKS));
@@ -29,8 +29,14 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
         try { map[l.name] = `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(new URL(l.url).hostname)}`; } catch { /* skip */ }
       }
       setFavicons(map);
-    })();
-    return () => { cancelled = true; };
+    };
+    load();
+    // Setup import (Invite Hub) rewrites this key and notifies us.
+    window.addEventListener('animetab:links-changed', load);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('animetab:links-changed', load);
+    };
   }, []);
 
   const persist = async (next) => {

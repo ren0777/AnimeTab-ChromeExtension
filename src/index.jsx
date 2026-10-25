@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './fonts.css';
 import BlurWallpaperBackground from './components/BlurWallpaperBackground';
@@ -7,6 +7,7 @@ import MerchSection from './components/MerchSection';
 import { useNekosWallpaper } from './hooks/useNekosWallpaper';
 import { createAnalytics, EVENT_TYPES } from './lib/analytics.mjs';
 import { storageGet, storageSet } from './lib/platform.mjs';
+import { GROWTH_KEY, unlockedRewards } from './lib/growth.mjs';
 
 // One shared, fully-local metrics store (chrome.storage only — never networked).
 const analytics = createAnalytics({ get: storageGet, set: storageSet });
@@ -24,11 +25,21 @@ const App = () => {
     updateThemeMode
   } = useNekosWallpaper(analytics);
 
+  const [rewards, setRewards] = useState([]);
+
   useEffect(() => {
     analytics.track(EVENT_TYPES.TAB_OPEN);
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) loadingScreen.classList.add('hidden');
   }, [analytics]);
+
+  // Cosmetic rewards unlocked by invite actions (local counters only).
+  useEffect(() => {
+    (async () => {
+      const growth = (await storageGet([GROWTH_KEY]))[GROWTH_KEY];
+      setRewards(unlockedRewards(growth?.inviteCount || 0));
+    })();
+  }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-anime-theme', themeMode);
@@ -68,9 +79,15 @@ const App = () => {
           onPin={pinWallpaper}
           themeMode={themeMode}
           onThemeChange={updateThemeMode}
+          rewards={rewards}
           analytics={analytics}
         />
       </BlurWallpaperBackground>
+      {rewards.includes('neonRain') && (
+        <div className="neon-rain-overlay" aria-hidden="true">
+          {Array.from({ length: 14 }, (_, i) => <span key={i} className="drop" />)}
+        </div>
+      )}
       <MerchSection analytics={analytics} />
     </>
   );

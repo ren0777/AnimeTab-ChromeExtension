@@ -1,0 +1,116 @@
+/* Habit dock + streak + focus/ambient/toast styles */
+
+.wano-header {
+  align-items: flex-start;
+}
+
+.greeting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.streak-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: #ffb4c4;
+  background: rgba(255, 107, 138, 0.14);
+  border: 1px solid rgba(255, 107, 138, 0.3);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.dock-row { align-items: center; }
+
+.focus-pill,
+.ambient-btn,
+.invite-btn.dock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.focus-pill:hover,
+.ambient-btn:hover { transform: translateY(-1px); }
+
+.focus-pill.active {
+  background: rgba(255, 107, 138, 0.2);
+  border-color: rgba(255, 107, 138, 0.5);
+  color: #ffb4c4;
+  font-variant-numeric: tabular-nums;
+  animation: focus-pulse 2s ease infinite;
+}
+
+.ambient-btn.active {
+  background: rgba(99, 226, 183, 0.14);
+  border-color: rgba(99, 226, 183, 0.45);
+  color: #9ff0d1;
+}
+
+@keyframes focus-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 107, 138, 0); }
+  50% { box-shadow: 0 0 14px rgba(255, 107, 138, 0.35); }
+}
+
+.focus-toast {
+  position: fixed;
+  bottom: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 850;
+  background: rgba(14, 14, 22, 0.95);
+  border: 1px solid rgba(99, 226, 183, 0.5);
+  color: #d9fff2;
+  font-size: 13px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.5);
+  animation: toast-in 0.4s ease;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-pill.active { animation: none; }
+  .focus-toast { animation: none; }
+}
+
+/* Layout: focus + ambient live next to the wallpaper/support buttons */
+.dock-row { display: flex; }
+
+.studio-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.studio-check input {
+  width: 15px;
+  height: 15px;
+  accent-color: #ff6b8a;
+  cursor: pointer;
+}
+
+/* Greeting row hosts header content (greeting + streak pill) */
+.greeting-row { gap: 12px; }
+

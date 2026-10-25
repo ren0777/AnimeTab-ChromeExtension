@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { assetUrl, storageGet, storageSet } from '../lib/platform.mjs';
 import { buildAmazonUrl, nextRotation, pickProduct, hasProducts } from '../lib/merch.mjs';
+import { MERCH_HIDDEN_KEY } from '../lib/growth.mjs';
 import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
 import './MerchSection.css';
 
@@ -20,9 +21,20 @@ const CATEGORY_ICONS = {
 export default function MerchSection({ analytics = createAnalytics({ get: async () => ({}), set: async () => ({}) }) }) {
   const [product, setProduct] = useState(null);
   const [weekInfo, setWeekInfo] = useState(null);
+  const [hidden, setHidden] = useState(false);
   const jsonRef = useRef(null);
   const tagRef = useRef('');
   const indexRef = useRef(0);
+
+  // Hide-able from the Wallpaper Studio ("Show merch card" checkbox).
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handler = (e) => setHidden(e.detail === false);
+      window.addEventListener('animetab:merch-visibility', handler);
+      return () => window.removeEventListener('animetab:merch-visibility', handler);
+    }
+    return undefined;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +46,8 @@ export default function MerchSection({ analytics = createAnalytics({ get: async 
 
         jsonRef.current = json;
         tagRef.current = String(json.affiliateTag || '').trim();
+
+        setHidden(Boolean((await storageGet([MERCH_HIDDEN_KEY]))[MERCH_HIDDEN_KEY]));
 
         const state = (await storageGet([MERCH_STATE_KEY]))[MERCH_STATE_KEY] || {};
         const len = json.products.length;
@@ -73,7 +87,7 @@ export default function MerchSection({ analytics = createAnalytics({ get: async 
 
   const handleClick = () => analytics && analytics.track(EVENT_TYPES.AFFILIATE_CLICK);
 
-  if (!product) return null;
+  if (!product || hidden) return null;
 
   const tooltip = weekInfo
     ? `Local metrics (never sent anywhere) — this week: ${weekInfo.weekTotal || 0} fresh tabs`

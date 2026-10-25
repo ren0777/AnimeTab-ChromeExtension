@@ -65,7 +65,18 @@ for row in entries: print(row[1])
 `;
 
 const entries = copyList.map(([full, rel]) => [path.resolve(ROOT, full), rel]);
-execFileSync('python3', ['-c', PYTHON, zipPath, JSON.stringify(entries)], { stdio: 'pipe' });
+// Windows usually ships `python`/`py` rather than `python3`.
+const PYTHON_BINS = ['python3', 'python', 'py'];
+const pythonBin = PYTHON_BINS.find((bin) => {
+  try {
+    execFileSync(bin, ['--version'], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+});
+if (!pythonBin) throw new Error(`Python not found (tried ${PYTHON_BINS.join(', ')}) — needed to build the zip`);
+execFileSync(pythonBin, ['-c', PYTHON, zipPath, JSON.stringify(entries)], { stdio: 'pipe' });
 
 const sizeMB = statSync(zipPath).size / (1024 * 1024);
 console.log(`Packaged ${entries.length} files → release/animetab-v${manifest.version}.zip (${sizeMB.toFixed(2)} MB)`);

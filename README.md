@@ -13,8 +13,13 @@ Everything runs client-side. User data stays local: preferences and anonymous fe
 - **Quick Links** – add / remove / reorder tiles; favicons fetched from Google's favicon service; custom links persist locally.
 - **Word of the Day** – deterministic daily quote from `quotes.json`.
 - **Airing Soon** – next scheduled episodes for the current AniList season, cached 6 hours in the background worker.
-- **Merch card** – hourly auto-rotation plus manual "→"; disclosure shown on the card; opens Amazon in a new tab only on click.
-- **Local metrics** – anonymous counters (fresh tabs, merch clicks, uploads) visible in the Wallpaper Studio. No third-party analytics; no network telemetry.
+- **Focus timer** – 25-minute Pomodoro persisted in storage, so every new tab shows the same countdown; completion chime + toast.
+- **Ambient sound** – synthesized rain / vinyl / ocean (WebAudio, no audio files). Off by default; selection remembered, never auto-plays.
+- **Daily streak** – 🔥 pill for consecutive days with a tab open.
+- **Invite hub** – one-tap share (X, Telegram, WhatsApp, Reddit, Discord, copy) with cosmetic unlocks at 3/5/10 invite actions: neon rain overlay, night-drive quote mode, hologram clock skin.
+- **Share my setup** – export/import a setup code (links + theme + engine + clock format) so friends can clone your vibe.
+- **Merch card** – hourly auto-rotation plus manual "→"; hide/show from the Wallpaper Studio; disclosure shown on the card; opens Amazon in a new tab only on click.
+- **Local metrics** – anonymous counters (fresh tabs, merch clicks, uploads, focus, invites) visible in the Wallpaper Studio. No third-party analytics; no network telemetry.
 
 ## Monetization setup
 

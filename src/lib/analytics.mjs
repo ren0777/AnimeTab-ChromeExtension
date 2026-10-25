@@ -8,10 +8,15 @@ export const EVENT_TYPES = {
   TAB_OPEN: 'tab_open',
   AFFILIATE_CLICK: 'affiliate_click',
   MERCH_NEXT: 'merch_next',
+  MERCH_TOGGLE: 'merch_toggle',
   WALLPAPER_UPLOAD: 'wallpaper_upload',
   WALLPAPER_PIN: 'wallpaper_pin',
   WALLPAPER_SHUFFLE: 'wallpaper_shuffle',
-  LINK_EDIT: 'link_edit'
+  LINK_EDIT: 'link_edit',
+  FOCUS_START: 'focus_start',
+  FOCUS_COMPLETE: 'focus_complete',
+  INVITE_ACTION: 'invite_action',
+  SETUP_IMPORT: 'setup_import'
 };
 
 const dayKeyOf = (date) => date.toISOString().slice(0, 10);
@@ -43,7 +48,7 @@ export function createAnalytics({ get, set }) {
           for (const [name, num] of Object.entries(events)) week[name] = (week[name] || 0) + num, weekTotal += num;
         }
       }
-      return { totals: m.totals || {}, week, weekTotal };
+      return { totals: m.totals || {}, week, weekTotal, days: m.days || {} };
     }
   };
 }

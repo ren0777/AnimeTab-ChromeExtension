@@ -17,6 +17,10 @@ Turn every new tab into a small anime moment:
 - ⚡ Quick links you can edit: add, remove and reorder your daily sites
 - ✧ Word of the Day — a deterministic anime-style daily quote
 - ⏱ Airing Soon — upcoming episodes for the currently popular season (AniList)
+- ⏳ Focus 25 — a cross-tab Pomodoro with a completion chime
+- 🌧️ Ambient sound — synthesized rain, vinyl crackle or ocean (no downloads)
+- 🔥 Daily streak, 🎁 invite hub with unlockable cosmetics (neon rain, night-drive, hologram clock)
+- 🔗 Share my setup — friends clone your links + theme with one code
 - 🛍️ A curated merch card with a clear affiliate disclosure
 
 Privacy-first: no account, no tracking scripts, no data leaves your device. Wallpapers and airing data come from public APIs; usage stats are stored and shown to you locally only.
