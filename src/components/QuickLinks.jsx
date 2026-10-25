@@ -13,10 +13,18 @@ import './QuickLinks.css';
 export default function QuickLinks({ analytics = createAnalytics({ get: async () => ({}), set: async () => ({}) }) }) {
   const [links, setLinks] = useState(null);
   const [editing, setEditing] = useState(false);
-  const [favicons, setFavicons] = useState({});
   const [draft, setDraft] = useState({ name: '', url: '' });
   const [editId, setEditId] = useState(null); // tile id currently being renamed/re-linked
   const [editDraft, setEditDraft] = useState({ name: '', url: '' });
+
+  // Favicon URL is computed at render time (keyed by the current URL), so
+  // renames/edits never leave a tile stuck on the emoji fallback.
+  const faviconUrlFor = (link) => {
+    try {
+      return `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(new URL(link.url).hostname)}`;
+    } catch { /* unparseable url → icon fallback */ }
+    return undefined;
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -24,13 +32,6 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
       const stored = (await storageGet([LINKS_STORAGE_KEY]))[LINKS_STORAGE_KEY];
       if (cancelled) return;
       setLinks(normalizeLinkList(stored) || normalizeLinkList(DEFAULT_LINKS));
-      // Best-effort favicons, non-blocking.
-      const source = normalizeLinkList(stored) || DEFAULT_LINKS;
-      const map = {};
-      for (const l of source) {
-        try { map[l.name] = `https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(new URL(l.url).hostname)}`; } catch { /* skip */ }
-      }
-      setFavicons(map);
     };
     load();
     // Setup import (Invite Hub) rewrites this key and notifies us.
@@ -126,8 +127,8 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
                   style={{ background: link.gradient }}
                   onClick={() => { /* navigation is natural */ }}
                 >
-                  {favicons[link.name]
-                    ? <img className="link-favicon" src={favicons[link.name]} alt="" width="22" height="22" loading="lazy" />
+                  {faviconUrlFor(link)
+                    ? <img className="link-favicon" src={faviconUrlFor(link)} alt="" width="22" height="22" loading="lazy" />
                     : <div className="link-icon">{link.icon}</div>}
                   <div className="link-name">{link.name}</div>
                 </a>

@@ -21,6 +21,7 @@ const App = () => {
   const {
     wallpaperUrl,
     wallpaperIsVideo,
+    wallpaperMime,
     customEnabled,
     isPinned,
     uploadCustomWallpaper,
@@ -41,9 +42,10 @@ const App = () => {
     analytics.track(EVENT_TYPES.TAB_OPEN);
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) loadingScreen.classList.add('hidden');
-    // analytics is a module-level singleton; the effect is mount-only.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  });
+    // analytics is a module-level singleton; this effect is mount-only.
+    // (An earlier lint pass dropped the dep array, which re-fired TAB_OPEN
+    // on every render and inflated the local metrics.)
+  }, []);
 
   // Cosmetic rewards unlocked by invite actions (local counters only).
   useEffect(() => {
@@ -57,15 +59,26 @@ const App = () => {
     document.documentElement.setAttribute('data-anime-theme', themeMode);
   }, [themeMode]);
 
-  // Save the current wallpaper to disk ( Studios → 💾 Save image).
+  // Save the current wallpaper to disk (Studio → 💾 Save image). Works for
+  // remote images, bundled fallbacks (chrome-extension://) and custom uploads
+  // (blob:), audio-anonymous videos included.
   const saveWallpaper = useCallback(async () => {
     try {
-      if (!wallpaperUrl || !/^https?:|^blob:/.test(wallpaperUrl)) return;
-      const ext = /\.(jpe?g|png|webp|gif)(?:\?|$)/i.exec(wallpaperUrl)?.[1] || 'jpg';
+      if (!wallpaperUrl || !/^(https?:|blob:|chrome-extension:)/.test(wallpaperUrl)) return;
+      const mimeExts = {
+        'video/mp4': 'mp4', 'video/webm': 'webm', 'video/x-matroska': 'mkv',
+        'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif'
+      };
+      const ext =
+        mimeExts[wallpaperMime] ||
+        /\.(jpe?g|png|webp|gif|bmp)(?:[?#]|$)/i.exec(wallpaperUrl)?.[1] ||
+        (wallpaperIsVideo ? 'mp4' : 'jpg');
       await downloadFile(wallpaperUrl, `animetab-wallpaper-${new Date().toISOString().slice(0, 10)}.${ext}`);
       await analytics.track(EVENT_TYPES.WALLPAPER_SAVE);
     } catch { /* user canceled or downloads unavailable */ }
-  }, [wallpaperUrl, analytics]);
+    // analytics is the module-level singleton (stable across renders).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallpaperUrl, wallpaperMime, wallpaperIsVideo]);
 
   // Palette-only fallback while the wallpaper network request is in flight.
   const fallbackWallpaper = useMemo(() => {

@@ -183,6 +183,9 @@ const handleFetchAiring = async () => {
   })();
 
   // Watchlist schedule (cheap ids query, short cache so edits show quickly).
+  // Pinned shows with no upcoming episode (inside the 14-day parse window)
+  // come back as bare entries — they must stay visible + removable, not
+  // silently vanish from the list.
   const watchlist = await (async () => {
     try {
       const cache = (await storageGet(ANILIST_WATCH_CACHE_KEY))[ANILIST_WATCH_CACHE_KEY];
@@ -191,15 +194,19 @@ const handleFetchAiring = async () => {
       }
     } catch { /* cache miss */ }
     try {
-      const ids = ((await storageGet(WATCHLIST_KEY))[WATCHLIST_KEY] || [])
-        .map((entry) => entry?.id).filter(Number.isFinite);
-      if (!ids.length) return { items: [] };
+      const entries = ((await storageGet(WATCHLIST_KEY))[WATCHLIST_KEY] || [])
+        .filter((entry) => Number.isFinite(entry?.id));
+      if (!entries.length) return { items: [] };
       const data = await fetchJson(ANILIST_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ query: WATCHLIST_QUERY, variables: { ids } })
+        body: JSON.stringify({ query: WATCHLIST_QUERY, variables: { ids: entries.map((e) => e.id) } })
       });
-      const items = parseAiringItems(data);
+      const airingById = new Map(parseAiringItems(data)
+        .filter((item) => Number.isFinite(item.id))
+        .map((item) => [item.id, item]));
+      const items = entries.map((entry) =>
+        airingById.get(entry.id) || { id: entry.id, title: entry.title, upcoming: false });
       await storageSet({ [ANILIST_WATCH_CACHE_KEY]: { items, fetchedAt: Date.now() } });
       return { items };
     } catch (error) {

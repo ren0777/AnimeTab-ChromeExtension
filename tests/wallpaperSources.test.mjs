@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {
   WALLPAPER_SOURCES, normalizeSource, pickNekosCategory, buildNekosUrl,
   buildWallhavenUrl, wallhavenPage, wallhavenPaths, extractNekosUrl,
-  fallbackSourceFor, sourceAttemptChain, buildBingUrl, bingPaths, BING_IMAGE_DAYS
+  fallbackSourceFor, sourceAttemptChain, sceneryPathsFrom,
+  buildBingUrl, bingPaths, BING_IMAGE_DAYS
 } from '../src/lib/wallpaperSources.mjs';
 
 test('source registry + fallback chain stay consistent', () => {
@@ -83,6 +84,36 @@ test('wallhavenPaths keeps https full-res paths and drops junk', () => {
   );
   assert.deepEqual(wallhavenPaths(null), []);
   assert.deepEqual(wallhavenPaths({ data: 'nope' }), []);
+});
+
+test('sceneryPathsFrom is best-effort: tightens tagged payloads, never zeroes a pool', () => {
+  const data = { data: [
+    { path: 'https://w.wallhaven.cc/full/scenery.jpg', dimension_x: 2560, tags: [{ name: 'anime' }, { name: 'Scenery' }] },
+    { path: 'https://w.wallhaven.cc/full/character.jpg', dimension_x: 2560, tags: [{ name: 'Gojo Satoru' }] },
+    { path: 'https://w.wallhaven.cc/full/titled.jpg', dimension_x: 2560, tags: [{ name: 'rem' }] }, // "landscape" only in title ≠ tagged
+    { path: 'https://w.wallhaven.cc/full/sea.jpg', dimension_x: 2560, tags: [{ name: 'sea' }] }
+  ] };
+  assert.deepEqual(sceneryPathsFrom(data), [
+    'https://w.wallhaven.cc/full/scenery.jpg',
+    'https://w.wallhaven.cc/full/sea.jpg'
+  ]);
+
+  // Payload without tags (older wallhaven shape) → pass-through, not [].
+  assert.deepEqual(
+    sceneryPathsFrom({ data: [
+      { path: 'https://w.wallhaven.cc/full/a.jpg', dimension_x: 2560 },
+      { path: 'https://w.wallhaven.cc/full/b.jpg', dimension_x: 2560, tags: [] }
+    ] }),
+    ['https://w.wallhaven.cc/full/a.jpg', 'https://w.wallhaven.cc/full/b.jpg']
+  );
+
+  // Guards still apply, and hideous input shapes yield [] gracefully.
+  assert.deepEqual(sceneryPathsFrom({ data: [
+    { path: 'http://insecure.jpg', tags: [{ name: 'mountain' }] },
+    { path: 'https://small.jpg', dimension_x: 1280, tags: [{ name: 'sky' }] }
+  ] }), []);
+  assert.deepEqual(sceneryPathsFrom(null), []);
+  assert.deepEqual(sceneryPathsFrom({ data: 'nope' }), []);
 });
 
 test('extractNekosUrl handles known response shapes', () => {

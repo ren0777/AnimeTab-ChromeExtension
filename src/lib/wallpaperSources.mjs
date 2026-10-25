@@ -66,6 +66,23 @@ export function wallhavenPaths(data) {
     .map((item) => item.path);
 }
 
+// Best-effort scenery tightener: savings when the payload is tag-bearing
+// (exact results), harmless pass-through when it is not. The filter can
+// NEVER zero out a pool — an empty tagged subset falls back to the base set.
+export const SCENERY_TAG_RE =
+  /(landscape|scenery|nature|mountain|forest|sunset|sunrise|ocean|sea|beach|field|sky|river|lake|countryside|meadow|valley|island|desert|cityscape|environment)/i;
+
+export function sceneryPathsFrom(data) {
+  const base = (Array.isArray(data?.data) ? data.data : [])
+    .filter((item) => typeof item?.path === 'string' && /^https:/.test(item.path))
+    .filter((item) => !item.dimension_x || item.dimension_x >= 1920);
+  const tagged = base.filter((item) =>
+    Array.isArray(item.tags) &&
+    item.tags.some((t) => SCENERY_TAG_RE.test(String(t?.name || ''))));
+  const keep = (tagged.length ? tagged : base);
+  return keep.map((item) => item.path);
+}
+
 // --- Bing daily wallpapers (keyless, SFW, genuine landscape photos) --------
 export const BING_ARCHIVE_URL = 'https://www.bing.com/HPImageArchive.aspx?format=js&n=8&mkt=en-US';
 export const BING_IMAGE_DAYS = 8;

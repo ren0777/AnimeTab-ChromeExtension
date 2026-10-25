@@ -150,6 +150,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
   const [customEnabled, setCustomEnabled] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const [wallpaperIsVideo, setWallpaperIsVideo] = useState(false);
+  const [wallpaperMime, setWallpaperMime] = useState('');
   const [themeMode, setThemeMode] = useState('wano');
   const [wallpaperCategory, setWallpaperCategoryState] = useState('any');
   const [wallpaperSource, setWallpaperSourceState] = useState('nekos');
@@ -168,8 +169,11 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
     revokeObjectUrl();
     const objUrl = URL.createObjectURL(blob);
     objectUrlRef.current = objUrl;
-    // Custom uploads may be videos; render them with a <video> layer.
-    setWallpaperIsVideo(String(mime || blob.type || '').toLowerCase().startsWith('video/'));
+    // Custom uploads may be videos; render them with a <video> layer and
+    // keep the mime for downstream naming (Save image).
+    const resolvedMime = String(mime || blob.type || '').toLowerCase();
+    setWallpaperIsVideo(resolvedMime.startsWith('video/'));
+    setWallpaperMime(resolvedMime);
     setWallpaperUrl(objUrl);
     return objUrl;
   }, []);
@@ -187,6 +191,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
     await storageSet({ [STORAGE_KEY]: url, [ALT_STORAGE_KEY]: url, [CUSTOM_ENABLED_KEY]: false });
     revokeObjectUrl();
     setWallpaperIsVideo(false);
+    setWallpaperMime('');
     setWallpaperUrl(url);
   }, []);
 
@@ -399,7 +404,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
   }, [loadWallpaper]);
 
   return {
-    wallpaperUrl, loading, error, customEnabled, isPinned, wallpaperIsVideo, themeMode,
+    wallpaperUrl, loading, error, customEnabled, isPinned, wallpaperIsVideo, wallpaperMime, themeMode,
     wallpaperCategory, wallpaperSource,
     refreshWallpaper: () => loadWallpaper({ forceNew: true }),
     shuffleWallpaper,

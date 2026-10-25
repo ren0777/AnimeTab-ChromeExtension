@@ -149,6 +149,9 @@ const BlurWallpaperBackground = ({
     };
 
     loadInitialImage();
+    // This component intentionally re-runs only when the input changes —
+    // preloadMedia/transitionToImage read the same values from this render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl, isVideo, blurAmount, transitionDuration]);
 
   // Watch for imageUrl prop changes
@@ -156,6 +159,9 @@ const BlurWallpaperBackground = ({
     if (imageUrl && imageUrl !== currentImage && !isTransitioningRef.current) {
       transitionToImage(imageUrl);
     }
+    // Guard on purpose: transitionToImage is called mid-transition ref guard,
+    // adding them as deps would restart transitions on every state change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl]);
 
   // Preload next image if available
