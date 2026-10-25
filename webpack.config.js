@@ -6,7 +6,9 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    publicPath: ''
+    // bundle.js is loaded from newtab.html at the extension root, so asset
+    // URLs inside the injected CSS must be page-relative: dist/fonts/…
+    publicPath: 'dist/'
   },
   module: {
     rules: [
