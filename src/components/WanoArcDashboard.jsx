@@ -11,6 +11,7 @@ import { storageGet, storageSet } from '../lib/platform.mjs';
 import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
 import { streakFromMetrics, MERCH_HIDDEN_KEY } from '../lib/growth.mjs';
 import { WALLPAPER_CATEGORIES } from '../hooks/useNekosWallpaper';
+import { WALLPAPER_SOURCES } from '../lib/wallpaperSources.mjs';
 import './StudioPanel.css';
 import './HabitDock.css';
 import './Rewards.css';
@@ -43,6 +44,8 @@ const WanoArcDashboard = ({
   onPin,
   wallpaperCategory,
   onCategoryChange,
+  wallpaperSource,
+  onSourceChange,
   themeMode,
   onThemeChange,
   rewards = [],
@@ -244,19 +247,35 @@ const WanoArcDashboard = ({
                 </button>
               </div>
               <div className="studio-row">
-                <label className="studio-label" htmlFor="studio-type">Type</label>
+                <label className="studio-label" htmlFor="studio-source">Source</label>
                 <select
-                  id="studio-type"
+                  id="studio-source"
                   className="studio-select"
-                  value={wallpaperCategory || 'any'}
-                  onChange={(e) => onCategoryChange && onCategoryChange(e.target.value)}
-                  title="Wallpaper category from nekos.best"
+                  value={wallpaperSource || 'nekos'}
+                  onChange={(e) => onSourceChange && onSourceChange(e.target.value)}
+                  title="Where wallpapers come from"
                 >
-                  {WALLPAPER_CATEGORIES.map((c) => (
-                    <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
+                  {WALLPAPER_SOURCES.map((s) => (
+                    <option key={s.id} value={s.id}>{s.label}</option>
                   ))}
                 </select>
               </div>
+              {(wallpaperSource || 'nekos') === 'nekos' && (
+                <div className="studio-row">
+                  <label className="studio-label" htmlFor="studio-type">Type</label>
+                  <select
+                    id="studio-type"
+                    className="studio-select"
+                    value={wallpaperCategory || 'any'}
+                    onChange={(e) => onCategoryChange && onCategoryChange(e.target.value)}
+                    title="Portrait category from nekos.best"
+                  >
+                    {WALLPAPER_CATEGORIES.map((c) => (
+                      <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="studio-row">
                 <label className="studio-label" htmlFor="studio-mood">Mood</label>
                 <select

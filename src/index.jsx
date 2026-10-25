@@ -27,6 +27,8 @@ const App = () => {
     pinWallpaper,
     wallpaperCategory,
     setWallpaperCategory,
+    wallpaperSource,
+    setWallpaperSource,
     themeMode,
     updateThemeMode
   } = useNekosWallpaper(analytics);
@@ -85,6 +87,8 @@ const App = () => {
           onPin={pinWallpaper}
           wallpaperCategory={wallpaperCategory}
           onCategoryChange={setWallpaperCategory}
+          wallpaperSource={wallpaperSource}
+          onSourceChange={setWallpaperSource}
           themeMode={themeMode}
           onThemeChange={updateThemeMode}
           rewards={rewards}

@@ -8,7 +8,8 @@
 ## Wallpaper & themes
 
 - [ ] New tab paints the cached wallpaper instantly (no blank wait), then crossfades to a fresh one
-- [ ] Studio → Type select (dark popup, not white): choosing Waifu/Neko/Kitsune/Husbando fetches a matching image and persists across tabs; "Any type" restores the random mix
+- [ ] Studio → Source select (Anime portraits / Anime scenes / Anime landscapes) fetches from the chosen provider and persists; Type row appears only for Anime portraits
+- [ ] Studio → Type select (dark popup): Waifu/Neko/Kitsune/Husbando fetches a matching portrait and persists; "Any type" restores the random mix
 - [ ] Wallpaper Studio: Shuffle fetches a new image; Pin keeps the same image across tabs; Unpin restores random
 - [ ] Upload an image (and a video); Reload tab → custom background returns; Reset reverts
 - [ ] Mood picker changes palette and stops auto-detection from overwriting it on later tabs; light wallpaper auto-lands on Cute, dark on LoFi only while mood never manually chosen

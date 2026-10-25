@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { normalizeTheme } from '../lib/theme.mjs';
+import { normalizeSource } from '../lib/wallpaperSources.mjs';
 import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
 import { storageGet, storageSet } from '../lib/platform.mjs';
 
@@ -10,6 +11,7 @@ const THEME_KEY = 'animeThemeMode';
 const MOOD_TOUCHED_KEY = 'moodTouched'; // user picked a mood manually → stop auto-detecting
 const PINNED_URL_KEY = 'wallpaperPinnedUrl';
 const CATEGORY_KEY = 'wallpaperCategory';
+const SOURCE_KEY = 'wallpaperSource';
 const CUSTOM_DATA_KEY = 'customBackgroundData';
 const CUSTOM_MIME_KEY = 'customBackgroundMime';
 const CUSTOM_ENABLED_KEY = 'customBackgroundEnabled';
@@ -129,7 +131,8 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
   const [customEnabled, setCustomEnabled] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const [themeMode, setThemeMode] = useState('wano');
-  const [wallpaperCategory, setWallpaperCategoryState] = useState(DEFAULT_CATEGORY);
+  const [wallpaperCategory, setWallpaperCategoryState] = useState('any');
+  const [wallpaperSource, setWallpaperSourceState] = useState('nekos');
   const objectUrlRef = useRef(null);
 
   const revokeObjectUrl = () => {
@@ -179,12 +182,14 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
       const stored = await storageGet([
         CUSTOM_ENABLED_KEY, CUSTOM_REF_KEY, CUSTOM_MIME_KEY,
         STORAGE_KEY, ALT_STORAGE_KEY, THEME_KEY, MOOD_TOUCHED_KEY,
-        PINNED_URL_KEY, CATEGORY_KEY
+        PINNED_URL_KEY, CATEGORY_KEY, SOURCE_KEY
       ]);
       setThemeMode(normalizeTheme(stored[THEME_KEY]));
       setWallpaperCategoryState(normalizeCategory(stored[CATEGORY_KEY]));
+      setWallpaperSourceState(normalizeSource(stored[SOURCE_KEY]));
       const moodTouched = Boolean(stored[MOOD_TOUCHED_KEY]);
       const category = normalizeCategory(stored[CATEGORY_KEY]);
+      const source = normalizeSource(stored[SOURCE_KEY]);
 
       // Custom uploads (kept in IndexedDB) always win.
       if (stored[CUSTOM_ENABLED_KEY] && stored[CUSTOM_REF_KEY]) {
@@ -243,7 +248,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
       // show a cached image, keep the spinner off during the refresh.
       if (!shownCached) setLoading(true);
       const url = await new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ type: 'FETCH_WALLPAPER', category }, (response) => {
+        chrome.runtime.sendMessage({ type: 'FETCH_WALLPAPER', category, source }, (response) => {
           if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
           else if (response?.error) reject(new Error(response.error));
           else resolve(response?.url);
@@ -290,6 +295,13 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
     setWallpaperCategoryState(normalized);
     await storageSet({ [CATEGORY_KEY]: normalized });
     await loadWallpaper({ forceNew: true }); // show a matching wallpaper right away
+  }, [loadWallpaper]);
+
+  const setWallpaperSource = useCallback(async (nextSource) => {
+    const normalized = normalizeSource(nextSource);
+    setWallpaperSourceState(normalized);
+    await storageSet({ [SOURCE_KEY]: normalized });
+    await loadWallpaper({ forceNew: true });
   }, [loadWallpaper]);
 
   const uploadCustomWallpaper = useCallback(async (file) => {
@@ -359,11 +371,13 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
   }, [loadWallpaper]);
 
   return {
-    wallpaperUrl, loading, error, customEnabled, isPinned, themeMode, wallpaperCategory,
+    wallpaperUrl, loading, error, customEnabled, isPinned, themeMode,
+    wallpaperCategory, wallpaperSource,
     refreshWallpaper: () => loadWallpaper({ forceNew: true }),
     shuffleWallpaper,
     pinWallpaper,
     setWallpaperCategory,
+    setWallpaperSource,
     uploadCustomWallpaper,
     removeCustomWallpaper,
     updateThemeMode

@@ -1,14 +1,9 @@
-// AnimeTab background service worker.
-// - Fetches random wallpapers from nekos.best (with bundled fallbacks).
-// - Caches the AniList "Airing Soon" schedule for 6 hours.
+import {
+  normalizeSource, fallbackSourceFor, buildNekosUrl, extractNekosUrl,
+  buildWallhavenUrl, wallhavenPage, wallhavenPaths
+} from '../src/lib/wallpaperSources.mjs';
 
-const CATEGORIES = ['neko', 'waifu', 'kitsune', 'husbando'];
-
-// A specific category ("waifu", ...) narrows the pool; anything else = any.
-const categoryPool = (value) =>
-  CATEGORIES.includes(value) ? [value] : CATEGORIES;
-
-// Bundled images used when the API is unreachable, rate-limited, or blocks us.
+// Bundled images used when every remote source fails.
 const FALLBACK_WALLPAPERS = [
   'assets/fallback/fallback1.jpg',
   'assets/fallback/fallback2.jpg',
@@ -16,18 +11,17 @@ const FALLBACK_WALLPAPERS = [
   'assets/fallback/fallback4.jpg'
 ];
 
-const REQUEST_TIMEOUT_MS = 5000;
-const MAX_ATTEMPTS = 2;
-
-// --- Airing schedule (AniList) -------------------------------------------
-const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
-const ANILIST_CACHE_KEY = 'anilistAiringCache';
-const ANILIST_TTL_MS = 6 * 60 * 60 * 1000;
+const REQUEST_TIMEOUT_MS = 9000; // wallhaven serves large images
+const WALLHAVEN_POOL_KEY = 'wallhavenPool';
+const WALLHAVEN_POOL_TTL_MS = 15 * 60 * 1000;
 
 const pickRandom = (items) => items[Math.floor(Math.random() * items.length)];
 
 const localFallbackUrl = () =>
   chrome.runtime.getURL(pickRandom(FALLBACK_WALLPAPERS));
+
+const storageGet = (keys) => new Promise((resolve) => chrome.storage.local.get(keys, (r) => resolve(r || {})));
+const storageSet = (values) => new Promise((resolve) => chrome.storage.local.set(values, resolve));
 
 const fetchJson = async (url, options = {}) => {
   const controller = new AbortController();
@@ -51,13 +45,16 @@ const fetchJson = async (url, options = {}) => {
   }
 };
 
-const extractImageUrl = (data) =>
-  data?.results?.[0]?.url || data?.url || data?.data?.url || null;
+// --- AniList "Airing Soon" ------------------------------------------------
 
-// Season/year for AniList windows (WINTER = Dec→Feb calendar concept).
+const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
+const ANILIST_CACHE_KEY = 'anilistAiringCache';
+const ANILIST_TTL_MS = 6 * 60 * 60 * 1000;
+
 const currentSeason = (date = new Date()) => {
   const m = date.getMonth();
-  if (m <= 4) return { season: m <= 1 ? 'WINTER' : 'SPRING', seasonYear: date.getFullYear() };
+  if (m <= 1) return { season: 'WINTER', seasonYear: date.getFullYear() };
+  if (m <= 4) return { season: 'SPRING', seasonYear: date.getFullYear() };
   if (m <= 7) return { season: 'SUMMER', seasonYear: date.getFullYear() };
   if (m <= 10) return { season: 'FALL', seasonYear: date.getFullYear() };
   return { season: 'WINTER', seasonYear: date.getFullYear() + 1 };
@@ -91,42 +88,96 @@ const parseAiringItems = (data, now = Date.now()) => {
     .sort((a, b) => a.airingAt - b.airingAt);
 };
 
-const fetchAiringItems = async () => {
-  const { season, seasonYear } = currentSeason();
-  const data = await fetchJson(ANILIST_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ query: AIRING_QUERY, variables: { season, seasonYear } })
-  });
-  return parseAiringItems(data);
-};
-
 const handleFetchAiring = async () => {
   try {
-    const cache = (await new Promise((resolve) => chrome.storage.local.get(ANILIST_CACHE_KEY, resolve)))[ANILIST_CACHE_KEY];
+    const cache = (await storageGet(ANILIST_CACHE_KEY))[ANILIST_CACHE_KEY];
     if (cache && Date.now() - cache.fetchedAt < ANILIST_TTL_MS) {
       return { items: cache.items, cached: true };
     }
   } catch { /* cache miss */ }
 
   try {
-    const items = await fetchAiringItems();
-    await new Promise((resolve) => chrome.storage.local.set({
-      [ANILIST_CACHE_KEY]: { items, fetchedAt: Date.now() }
-    }, resolve));
+    const { season, seasonYear } = currentSeason();
+    const data = await fetchJson(ANILIST_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ query: AIRING_QUERY, variables: { season, seasonYear } })
+    });
+    const items = parseAiringItems(data);
+    await storageSet({ [ANILIST_CACHE_KEY]: { items, fetchedAt: Date.now() } });
     return { items, cached: false };
   } catch (error) {
     console.warn('[AnimeTab] AniList request failed:', error?.message || error);
-    // Serve stale cache rather than nothing.
     try {
-      const cache = (await new Promise((resolve) => chrome.storage.local.get(ANILIST_CACHE_KEY, resolve)))[ANILIST_CACHE_KEY];
+      const cache = (await storageGet(ANILIST_CACHE_KEY))[ANILIST_CACHE_KEY];
       if (cache) return { items: cache.items, cached: true, stale: true };
     } catch { /* ignore */ }
     return { items: [] };
   }
 };
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+// --- Wallpaper sources -----------------------------------------------------
+
+/**
+ * One API call fills a pool of candidate paths so ~24 tabs share a single
+ * wallhaven request (they rate-limit anonymous traffic).
+ */
+const refillWallhavenPool = async (sourceId) => {
+  const data = await fetchJson(buildWallhavenUrl(sourceId, wallhavenPage()));
+  const paths = wallhavenPaths(data);
+  if (!paths.length) throw new Error(`No wallpapers in ${sourceId} response`);
+  await storageSet({ [WALLHAVEN_POOL_KEY]: { paths, fetchedAt: Date.now() } });
+  return paths;
+};
+
+const takeWallhavenImage = async (sourceId) => {
+  const pool = (await storageGet(WALLHAVEN_POOL_KEY))[WALLHAVEN_POOL_KEY];
+  if (pool && Date.now() - pool.fetchedAt < WALLHAVEN_POOL_TTL_MS && pool.paths?.length) {
+    const [path, ...rest] = pool.paths;
+    await storageSet({ [WALLHAVEN_POOL_KEY]: { ...pool, paths: rest } });
+    return path;
+  }
+  const paths = await refillWallhavenPool(sourceId);
+  return pickRandom(paths);
+};
+
+const resolveSource = async (sourceId, category) => {
+  if (sourceId === 'nekos') {
+    const data = await fetchJson(buildNekosUrl(category));
+    const url = extractNekosUrl(data);
+    if (!url) throw new Error(`No wallpaper URL in nekos.best response`);
+    return url;
+  }
+  return takeWallhavenImage(sourceId); // 'scenes' | 'scenery'
+};
+
+const handleFetchWallpaper = async ({ source, category }) => {
+  const wanted = normalizeSource(source);
+  // Try the requested source, then a near-neighbor; when wallhaven is
+  // unreachable for both variants, gracefully degrade to nekos.best before
+  // resorting to the bundled images.
+  const attempts = wanted === 'nekos'
+    ? ['nekos', 'scenes']
+    : [wanted, fallbackSourceFor(wanted), 'nekos'].filter((v, i, a) => a.indexOf(v) === i);
+  let lastError = null;
+
+  for (const attempt of attempts) {
+    try {
+      const url = await resolveSource(attempt, category);
+      console.log(`[AnimeTab] Wallpaper from ${attempt}:`, url);
+      return { url, source: attempt };
+    } catch (error) {
+      lastError = error;
+      console.warn(`[AnimeTab] ${attempt} request failed:`, error?.name, error?.message);
+    }
+  }
+
+  const fallbackUrl = localFallbackUrl();
+  console.warn('[AnimeTab] All sources failed; using bundled wallpaper:', fallbackUrl, lastError?.message || '');
+  return { url: fallbackUrl, fallback: true, source: 'bundled' };
+};
+
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === 'FETCH_AIRING') {
     (async () => sendResponse(await handleFetchAiring()))();
     return true;
@@ -136,44 +187,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return undefined;
   }
 
-  (async () => {
-    // Try a random category first, then one different category as a retry.
-    // The user-selected type (Waifu/Neko/…) narrows the pool to one category.
-    const pool = categoryPool(request.category);
-    const categories = [...pool].sort(() => Math.random() - 0.5).slice(0, MAX_ATTEMPTS);
-    let lastError = null;
-
-    for (const category of categories) {
-      try {
-        const data = await fetchJson(`https://nekos.best/api/v2/${category}`);
-        const url = extractImageUrl(data);
-
-        if (!url) {
-          throw new Error(`No wallpaper URL in ${category} response`);
-        }
-
-        console.log(`[AnimeTab] Wallpaper from ${category}:`, url);
-        sendResponse({ url, source: category });
-        return;
-      } catch (error) {
-        lastError = error;
-        console.warn(
-          `[AnimeTab] ${category} request failed:`,
-          error.name,
-          error.message
-        );
-      }
-    }
-
-    // Never leave the new tab without a wallpaper just because the API failed.
-    const fallbackUrl = localFallbackUrl();
-    console.warn(
-      '[AnimeTab] API unavailable; using bundled wallpaper:',
-      fallbackUrl,
-      lastError?.message || ''
-    );
-    sendResponse({ url: fallbackUrl, fallback: true });
-  })();
-
+  (async () => sendResponse(await handleFetchWallpaper(request)))();
   return true;
 });
