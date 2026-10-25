@@ -1,5 +1,5 @@
 import {
-  normalizeSource, fallbackSourceFor, buildNekosUrl, extractNekosUrl,
+  normalizeSource, sourceAttemptChain, buildNekosUrl, extractNekosUrl,
   buildWallhavenUrl, wallhavenPage, wallhavenPaths
 } from '../src/lib/wallpaperSources.mjs';
 import { STORE_URL } from '../src/lib/growth.mjs';
@@ -50,7 +50,10 @@ const installNekosUaRule = () => {
 installNekosUaRule();
 
 const REQUEST_TIMEOUT_MS = 9000; // wallhaven serves large images
-const WALLHAVEN_POOL_KEY = 'wallhavenPool';
+// V3: invalidates pools cached before the categories=010 fix (they held
+// all-category results). Pools record their source so scenes and
+// landscapes never serve each other's images.
+const WALLHAVEN_POOL_KEY = 'wallhavenPoolV3';
 const WALLHAVEN_POOL_TTL_MS = 15 * 60 * 1000;
 
 const pickRandom = (items) => items[Math.floor(Math.random() * items.length)];
@@ -161,16 +164,30 @@ const handleFetchAiring = async () => {
  * wallhaven request (they rate-limit anonymous traffic).
  */
 const refillWallhavenPool = async (sourceId) => {
-  const data = await fetchJson(buildWallhavenUrl(sourceId, wallhavenPage()));
-  const paths = wallhavenPaths(data);
-  if (!paths.length) throw new Error(`No wallpapers in ${sourceId} response`);
-  await storageSet({ [WALLHAVEN_POOL_KEY]: { paths, fetchedAt: Date.now() } });
+  // Search results carry no tags, so filtering happens server-side via the
+  // query. Retry fresh pages (tolerating API failures per attempt) before
+  // giving the fallback chain a chance.
+  let paths = [];
+  let lastError = null;
+  for (let attempt = 0; attempt < 3 && !paths.length; attempt++) {
+    try {
+      const data = await fetchJson(buildWallhavenUrl(sourceId, wallhavenPage()));
+      paths = wallhavenPaths(data);
+    } catch (error) {
+      lastError = error;
+      console.warn(`[AnimeTab] ${sourceId} page attempt failed:`, error?.message || error);
+    }
+  }
+  if (!paths.length) {
+    throw new Error(lastError?.message || `No wallpapers in ${sourceId} response`);
+  }
+  await storageSet({ [WALLHAVEN_POOL_KEY]: { sourceId, paths, fetchedAt: Date.now() } });
   return paths;
 };
 
 const takeWallhavenImage = async (sourceId) => {
   const pool = (await storageGet(WALLHAVEN_POOL_KEY))[WALLHAVEN_POOL_KEY];
-  if (pool && Date.now() - pool.fetchedAt < WALLHAVEN_POOL_TTL_MS && pool.paths?.length) {
+  if (pool && pool.sourceId === sourceId && Date.now() - pool.fetchedAt < WALLHAVEN_POOL_TTL_MS && pool.paths?.length) {
     const [path, ...rest] = pool.paths;
     await storageSet({ [WALLHAVEN_POOL_KEY]: { ...pool, paths: rest } });
     return path;
@@ -191,12 +208,11 @@ const resolveSource = async (sourceId, category) => {
 
 const handleFetchWallpaper = async ({ source, category }) => {
   const wanted = normalizeSource(source);
-  // Try the requested source, then a near-neighbor; when wallhaven is
-  // unreachable for both variants, gracefully degrade to nekos.best before
-  // resorting to the bundled images.
-  const attempts = wanted === 'nekos'
-    ? ['nekos', 'scenes']
-    : [wanted, fallbackSourceFor(wanted), 'nekos'].filter((v, i, a) => a.indexOf(v) === i);
+  // sourceAttemptChain: the requested source first, then the remaining ones.
+  // A whole provider out — e.g. every wallhaven endpoint unreachable from the
+  // user's network — still ends on a different provider; bundled images are
+  // only reached when all three sources fail.
+  const attempts = sourceAttemptChain(wanted);
   let lastError = null;
 
   for (const attempt of attempts) {

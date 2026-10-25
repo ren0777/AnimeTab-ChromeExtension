@@ -47,14 +47,6 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
     if (analytics) await analytics.track(EVENT_TYPES.LINK_EDIT);
   };
 
-  const updateLink = (id, patch) => {
-    setLinks((cur) => {
-      const next = cur.map((l) => (l.id === id ? { ...l, ...patch } : l));
-      storageSet({ [LINKS_STORAGE_KEY]: next });
-      return next;
-    });
-  };
-
   const addLink = async (e) => {
     e.preventDefault();
     const name = draft.name.trim();

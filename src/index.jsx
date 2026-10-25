@@ -40,7 +40,9 @@ const App = () => {
     analytics.track(EVENT_TYPES.TAB_OPEN);
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) loadingScreen.classList.add('hidden');
-  }, [analytics]);
+    // analytics is a module-level singleton; the effect is mount-only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
 
   // Cosmetic rewards unlocked by invite actions (local counters only).
   useEffect(() => {

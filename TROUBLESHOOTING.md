@@ -6,6 +6,9 @@ Run `npm install` again.
 ### Wallpapers not loading
 `background.js` fetches from `https://nekos.best/*` (listed in manifest `host_permissions`). Check the service worker console: `chrome://extensions` → AnimeTab → "service worker". When offline the app shows bundled `assets/fallback/*.jpg`.
 
+### wallhaven.cc unreachable / hanging (ISP block)
+Some networks (ISPs, corporate firewalls) block or black-hole wallhaven.cc; the service-worker console then shows `TypeError: Failed to fetch` or a 9s abort (`AbortError`) per attempt. The source chain covers this: `sourceAttemptChain` tries the requested source, then the other two, so "Anime scenes" degrades to a nekos.best portrait instead of the bundled images, and a slow (hanging) provider is skipped after its 9s budget. Scenes/landscapes can only be *quality*-verified from a network that reaches wallhaven (VPN, hotspot) — on a blocked network the episode-count is unchanged but the images come from elsewhere.
+
 ### nekos.best returns HTTP 403
 nekos.best rejects any *browser* User-Agent and requires `AppName (contact)` per their API docs. `fetch()` may not set `User-Agent` (forbidden header), so `background.js` installs a `declarativeNetRequest` **session rule** that rewrites `User-Agent` to `AnimeTab (store listing URL)` for `requestDomains: ['nekos.best']` on every service-worker start. Verify it applied in the service-worker console (`[AnimeTab] nekos.best User-Agent rule installed`), or at `chrome://extensions` → AnimeTab → `declarativeNetRequest` rules. The permission used is `declarativeNetRequestWithHostAccess` — no extra Chrome permission prompt, since the `https://nekos.best/*` host permission already covers the rule. If the rule can't install, the app still falls back to wallhaven and then to the bundled images.
 

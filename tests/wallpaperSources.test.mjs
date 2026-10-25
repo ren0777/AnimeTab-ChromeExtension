@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   WALLPAPER_SOURCES, normalizeSource, pickNekosCategory, buildNekosUrl,
-  buildWallhavenUrl, wallhavenPage, wallhavenPaths, extractNekosUrl, fallbackSourceFor
+  buildWallhavenUrl, wallhavenPage, wallhavenPaths, extractNekosUrl,
+  fallbackSourceFor, sourceAttemptChain
 } from '../src/lib/wallpaperSources.mjs';
 
 test('source registry + fallback chain stay consistent', () => {
@@ -14,6 +15,18 @@ test('source registry + fallback chain stay consistent', () => {
   }
   assert.equal(normalizeSource('bogus'), 'nekos');
   assert.equal(normalizeSource(undefined), 'nekos');
+});
+
+test('sourceAttemptChain covers every source, even with a whole provider down', () => {
+  for (const wanted of ['nekos', 'scenes', 'scenery', 'bogus', undefined]) {
+    const chain = sourceAttemptChain(wanted);
+    assert.equal(chain.length, WALLPAPER_SOURCES.length); // no dead-end provider
+    assert.equal(chain[0], normalizeSource(wanted));
+    assert.equal(new Set(chain).size, chain.length); // each source tried once
+    for (let i = 1; i < chain.length; i++) {
+      assert.equal(chain[i], fallbackSourceFor(chain[i - 1])); // follows fallback links
+    }
+  }
 });
 
 test('pickNekosCategory honors a single choice or mixes the pool', () => {
@@ -29,14 +42,15 @@ test('buildNekosUrl stays inside the API v2 root', () => {
 
 test('buildWallhavenUrl encodes SFW, 1080p, random-sort searches', () => {
   const scenes = buildWallhavenUrl('scenes', 3);
-  assert.ok(scenes.includes('categories=anime'));
+  assert.ok(scenes.includes('categories=010')); // general/anime/people bitmask → anime only
+  assert.ok(!scenes.includes('q='));
   assert.ok(scenes.includes('purity=100'));
   assert.ok(scenes.includes('atleast=1920x1080'));
   assert.ok(scenes.includes('sorting=random'));
   assert.ok(scenes.includes('page=3'));
 
   const scenery = buildWallhavenUrl('scenery', 1);
-  assert.ok(scenery.includes('categories=anime'));
+  assert.ok(scenery.includes('categories=010'));
   assert.ok(scenery.includes('q=landscape')); // single strong tag, no character-art leakage
 });
 

@@ -8,7 +8,7 @@
 ## Wallpaper & themes
 
 - [ ] New tab paints the cached wallpaper instantly (no blank wait), then crossfades to a fresh one
-- [ ] Studio → Source select (Anime portraits / Anime scenes / Anime landscapes) fetches from the chosen provider and persists; Type row appears only for Anime portraits
+- [ ] Studio → Source select (Anime portraits / Anime scenes / Anime landscapes) fetches from the chosen provider and persists; Type row appears only for Anime portraits. On a network that blocks wallhaven, "Anime scenes/landscapes" still lands a live wallpaper (degrades through the source chain, check the SW console log lines); scenes *quality* needs a wallhaven-reachable network (VPN/hotspot)
 - [ ] Studio → Type select (dark popup): Waifu/Neko/Kitsune/Husbando fetches a matching portrait and persists; "Any type" restores the random mix
 - [ ] Wallpaper Studio: Shuffle fetches a new image; Pin keeps the same image across tabs; Unpin restores random
 - [ ] Upload an image (and a video): the video plays muted on loop; reload → custom background returns and the video still plays with no console errors; Reset reverts

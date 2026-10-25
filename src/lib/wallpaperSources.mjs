@@ -33,15 +33,16 @@ const WALLHAVEN_ABI = 'https://wallhaven.cc/api/v1/search';
 const WALLHAVEN_BASE_PARAMS = { purity: '100', sorting: 'random', atleast: '1920x1080' };
 export const WALLHAVEN_PAGE_POOL = 10;
 
+// wallhaven categories are a general/anime/people bitmask ("anime" is not a
+// valid value and would fall back to the default all-category search).
+const WALLHAVEN_ANIME_ONLY = '010';
+
 export function buildWallhavenUrl(sourceId, page = 1) {
   const params = new URLSearchParams(WALLHAVEN_BASE_PARAMS);
-  if (sourceId === 'scenes') {
-    params.set('categories', 'anime');
-  } else {
-    // Landscapes: stay inside the anime category and filter by the single
-    // strong "landscape" tag — a multi-word "anime landscape" query leaks
-    // generic character art (tags are matched loosely).
-    params.set('categories', 'anime');
+  params.set('categories', WALLHAVEN_ANIME_ONLY);
+  if (sourceId !== 'scenes') {
+    // Landscapes: anime category narrowed by the single strong "landscape"
+    // tag — a multi-word "anime landscape" query leaks generic character art.
     params.set('q', 'landscape');
   }
   params.set('page', String(page));
@@ -71,4 +72,20 @@ export function fallbackSourceFor(sourceId) {
   if (sourceId === 'nekos') return 'scenes';
   if (sourceId === 'scenes') return 'scenery';
   return 'nekos';
+}
+
+/**
+ * Attempt chain for a load: the requested source first, then its fallback,
+ * then the remaining source. Covers a whole-provider outage (e.g. every
+ * wallhaven endpoint blocked on the user's network) — the chain still ends
+ * on a different provider instead of landing straight on bundled images.
+ */
+export function sourceAttemptChain(sourceId) {
+  const chain = [normalizeSource(sourceId)];
+  while (chain.length < WALLPAPER_SOURCES.length) {
+    const next = fallbackSourceFor(chain[chain.length - 1]);
+    if (chain.includes(next)) break;
+    chain.push(next);
+  }
+  return chain;
 }
