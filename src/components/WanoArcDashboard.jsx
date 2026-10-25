@@ -360,14 +360,6 @@ const WanoArcDashboard = ({
         transition={{ delay: 1.1 }}
       >
         <div className="dock-row">
-          <button
-            type="button"
-            className="wallpaper-btn"
-            onClick={() => fileInputRef.current?.click()}
-            title="Upload custom wallpaper"
-          >
-            🖼️ Change Wallpaper
-          </button>
           <FocusTimer analytics={analytics} />
           <AmbientButton />
           <InviteHub analytics={analytics} />
@@ -376,7 +368,7 @@ const WanoArcDashboard = ({
               type="button"
               className="wallpaper-btn danger"
               onClick={onRemoveCustom}
-              title="Remove custom wallpaper"
+              title="Reset custom wallpaper"
             >
               ✕
             </button>
