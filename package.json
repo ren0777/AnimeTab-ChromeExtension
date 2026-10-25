@@ -1,6 +1,6 @@
 {
   "name": "animetab",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "AnimeTab — Anime New Tab with Wallpapers, Clock, Quotes, Merch & Airing Countdown",
   "main": "src/index.jsx",
   "scripts": {
