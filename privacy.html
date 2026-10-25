@@ -1,119 +1,168 @@
-<!doctype html>
-<html lang='en'>
-<head>
-  <meta charset='utf-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1'>
-  <title>AnimeTab Privacy Policy</title>
-  <link rel='preconnect' href='https://fonts.googleapis.com'>
-  <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
-  <link href='https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap' rel='stylesheet'>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Quicksand', sans-serif;
-      line-height: 1.65;
-      background: #ffffff;
-      color: #1d2338;
-    }
+  <!doctype html>
+  <html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>AnimeTab Privacy Policy</title>
+    <link rel='preconnect' href='https://fonts.googleapis.com'>
+    <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+    <link href='https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap' rel='stylesheet'>
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Quicksand', sans-serif;
+        line-height: 1.65;
+        background: #ffffff;
+        color: #1d2338;
+      }
 
-    main {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 2.4rem 1.25rem 3rem;
-    }
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 2.4rem 1.25rem 3rem;
+      }
 
-    h1, h2 {
-      color: #161932;
-    }
+      h1, h2 {
+        color: #161932;
+      }
 
-    h1 {
-      margin-bottom: 0.25rem;
-    }
+      h1 {
+        margin-bottom: 0.25rem;
+      }
 
-    .updated {
-      color: #5b6281;
-      margin-bottom: 2rem;
-    }
+      .updated {
+        color: #5b6281;
+        margin-bottom: 2rem;
+      }
 
-    section {
-      margin-bottom: 1.4rem;
-    }
+      section {
+        margin-bottom: 1.4rem;
+      }
 
-    a {
-      color: #d84572;
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Privacy Policy for AnimeTab</h1>
-    <p class='updated'>Last updated: April 27, 2026</p>
+      a {
+        color: #d84572;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Privacy Policy for AnimeTab</h1>
+      <p class='updated'>Last updated: April 27, 2026</p>
 
-    <section>
-      <h2>Overview</h2>
-      <p>
-        AnimeTab is a Chrome extension that replaces your new tab page with anime-style wallpapers,
-        a live clock, and daily motivational quotes. AnimeTab is designed to be offline-first and does
-        not require an account or backend service.
-      </p>
-    </section>
+      <section>
+        <h2>Overview</h2>
+        <p>
+          AnimeTab is a Chrome extension that replaces your new tab page with anime-style wallpapers,
+          a live clock, and daily motivational quotes. AnimeTab is designed to be offline-first and does
+          not require an account or backend service.
+        </p>
+      </section>
 
-    <section>
-      <h2>Data Collection and Use</h2>
-      <p>
-        AnimeTab does not collect personal information, browsing history, login data, or usage analytics.
-        The extension does not transmit data to external servers.
-      </p>
-      <p>
-        AnimeTab only uses <code>chrome.storage.local</code> to save local preferences on your device.
-      </p>
-    </section>
+      <section>
+        <h2>Data Collection and Use</h2>
+        <p>
+          AnimeTab does not collect personal information, browsing history, login data, or usage analytics.
+          The extension does not transmit data to external servers.
+        </p>
+        <p>
+          AnimeTab only uses <code>chrome.storage.local</code> to save local preferences on your device.
+        </p>
+      </section>
 
-    <section>
-      <h2>What Is Stored Locally</h2>
-      <p>AnimeTab stores only the following values:</p>
-      <ul>
-        <li><strong>currentWallpaperIndex</strong>: Tracks the currently active wallpaper index for smooth rotation.</li>
-        <li><strong>featuredDismissed</strong>: Remembers whether you dismissed the featured card.</li>
-        <li><strong>customBackgroundEnabled</strong>: Stores whether your uploaded media override is enabled.</li>
-        <li><strong>customBackgroundMime</strong>: Stores the file type of your uploaded image, GIF, or video.</li>
-        <li><strong>customBackgroundData</strong>: Stores your uploaded media content for local reuse in new tabs.</li>
-      </ul>
-      <p>
-        This data remains on your local Chrome profile and is not shared externally by AnimeTab.
-      </p>
-    </section>
+      <section>
+        <h2>What Is Stored Locally</h2>
+        <p>AnimeTab stores only the following values:</p>
+        <ul>
+          <li><strong>currentWallpaperIndex</strong>: Tracks the currently active wallpaper index for smooth rotation.</li>
+          <li><strong>featuredDismissed</strong>: Remembers whether you dismissed the featured card.</li>
+          <li><strong>customBackgroundEnabled</strong>: Stores whether your uploaded media override is enabled.</li>
+          <li><strong>customBackgroundMime</strong>: Stores the file type of your uploaded image, GIF, or video.</li>
+          <li><strong>customBackgroundData</strong>: Stores your uploaded media content for local reuse in new tabs.</li>
+          <li><strong>lofiStreamUrl</strong>, <strong>lofiVolume</strong>, <strong>lofiMuted</strong>: Stores your lo-fi player settings.</li>
+          <li><strong>inviteCount</strong>, <strong>growthMetrics</strong>, <strong>unlockedRewards</strong>: Stores local invite/reward progress.</li>
+          <li><strong>setupCode</strong>: Stores your most recent exported/imported setup code.</li>
+          <li><strong>streakCount</strong>, <strong>lastOpenDate</strong>, <strong>focusEndAt</strong>, <strong>ambientMode</strong>: Stores habit and focus preferences.</li>
+        </ul>
+        <p>
+          This data remains on your local Chrome profile and is not shared externally by AnimeTab.
+        </p>
+      </section>
 
-    <section>
-      <h2>Third-Party Services</h2>
-      <p>
-        AnimeTab does not include analytics SDKs, tracking scripts, ad trackers, or external telemetry.
-        The search feature redirects to Google only when you submit a query in the search bar.
-      </p>
-    </section>
+      <section>
+        <h2>Third-Party Services</h2>
+        <p>
+          AnimeTab does not include analytics SDKs, tracking scripts, ad trackers, or external telemetry.
+          The search feature redirects to Google only when you submit a query in the search bar.
+          Optional lo-fi and ambient streams are loaded only when you choose to play them.
+        </p>
+      </section>
 
-    <section>
-      <h2>Data Sharing</h2>
-      <p>
-        AnimeTab does not sell, rent, or share your data with third parties.
-      </p>
-    </section>
+      <section>
+        <h2>Monetization & Affiliate Links</h2>
+        <p>
+          AnimeTab includes a rotating merchandise recommendation section on the new tab page. 
+          This section displays anime-related products from Amazon and other retailers via affiliate links.
+        </p>
+        <p>
+          <strong>Affiliate Disclosure:</strong> AnimeTab is a participant in the Amazon Associates Program 
+          and other affiliate networks. When you click on a product recommendation and make a purchase, we earn 
+          a small commission at no extra cost to you. These commissions help support the continued development 
+          of AnimeTab.
+        </p>
+        <p>
+          Products rotate hourly based on the current time. You can manually rotate to see other products using 
+          the "Next" button. Clicking on a product opens a new tab with the affiliate link.
+        </p>
+        <p>
+          <strong>No Personal Data is Shared:</strong> Your clicks on affiliate links are not tracked or stored 
+          on your device. The affiliate information (product name, price, category) is only used for analytics 
+          purposes and is not linked to your personal information.
+        </p>
+      </section>
 
-    <section>
-      <h2>Data Retention and Removal</h2>
-      <p>
-        Stored preferences remain in your browser until you clear extension data or uninstall AnimeTab.
-        Uninstalling the extension removes its local stored data from Chrome.
-      </p>
-    </section>
+      <section>
+        <h2>Analytics</h2>
+        <p>
+          AnimeTab uses Google Analytics to measure feature usage and affiliate link engagement. 
+          This helps us understand which features are popular and how to improve the extension.
+        </p>
+        <p>
+          <strong>What We Track:</strong>
+        </p>
+        <ul>
+          <li>Affiliate product clicks and purchases (product name, price, category only)</li>
+          <li>Manual merch rotations</li>
+          <li>General feature usage patterns</li>
+        </ul>
+        <p>
+          Google Analytics is configured with privacy-first settings: IP anonymization is enabled, 
+          and we do not allow Google to personalize ads based on your activity in AnimeTab.
+        </p>
+      </section>
 
-    <section>
-      <h2>Contact</h2>
-      <p>
-        For privacy questions or requests, contact:
-        <a href='mailto:privacy@animetab.example.com'>privacy@animetab.example.com</a>
-      </p>
-    </section>
-  </main>
-</body>
-</html>
+      <section>
+        <h2>Data Sharing</h2>
+        <p>
+          AnimeTab does not sell, rent, or share your data with third parties. 
+          Google Analytics data is subject to Google's <a href="https://policies.google.com/privacy">Privacy Policy</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2>Data Retention and Removal</h2>
+        <p>
+          Stored preferences remain in your browser until you clear extension data or uninstall AnimeTab.
+          Uninstalling the extension removes its local stored data from Chrome.
+        </p>
+      </section>
+
+      <section>
+        <h2>Contact</h2>
+        <p>
+          For privacy questions or requests, contact:.
+          <a href='mailto:animeeditsnaarts@gmail.com'>animeeditsnaarts@gmail.com</a>
+        </p>
+      </section>
+    </main>
+  </body>
+  </html>

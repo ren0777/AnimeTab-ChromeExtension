@@ -42,3 +42,12 @@ Use this checklist before packaging or publishing.
 - [ ] Custom video upload works. Pass if selecting MP4/WebM plays as fullscreen background behind overlay.
 - [ ] Custom background persists across new tabs. Pass if uploaded media appears after closing/opening new tab again.
 - [ ] Reset to built-in wallpapers works. Pass if clicking reset restores wallpaper rotation and disables custom media.
+- [ ] Control Hub keeps center clean. Pass if wallpaper, clock, quote, and search remain unobstructed while controls stay in corner panel.
+- [ ] Invite share buttons work. Pass if each share method opens/copies as expected and status text updates.
+- [ ] Referral rewards unlock at milestones. Pass if invite count milestones (3/5/10) unlock expected visual perks and labels switch to unlocked.
+- [ ] Setup export creates valid code. Pass if export writes encoded text and copies to clipboard.
+- [ ] Setup import applies friend config. Pass if valid code updates lo-fi URL/volume, ambient mode, and unlocked reward visuals.
+- [ ] Daily streak behavior works. Pass if first open sets streak, next-day open increments streak, and skipped day resets.
+- [ ] Focus timer starts and stops cleanly. Pass if timer counts down from 25:00 and reset works without duplicate timers.
+- [ ] Ambient sound mode switching works. Pass if rain/cafe/vinyl play on select and none stops playback.
+- [ ] Growth snapshot increments correctly. Pass if invite/share/export/reward counters update after interactions and persist after reload.

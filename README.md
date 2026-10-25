@@ -2,6 +2,14 @@
 
 AnimeTab is a Manifest V3 Chrome extension that replaces your default new tab with an anime-inspired dashboard featuring rotating wallpapers, a live 24-hour clock, Japanese greetings, and a deterministic daily quote. It also lets you upload your own photo, GIF, or video as a persistent custom background. It runs fully client-side with no backend services and keeps data local for a privacy-first experience.
 
+## Growth Features (Word of Mouth)
+
+- **Invite Friends Hub** in the corner control panel with one-tap sharing for copy link, Discord, WhatsApp, Telegram, and X.
+- **Referral Rewards** unlock visual perks at 3/5/10 invite actions (neon rain overlay, night-drive quote mode, hologram clock skin).
+- **Share My Setup** export/import setup code so friends can instantly clone your vibe.
+- **Habit Loop** includes daily streak tracking, 25-minute focus timer, and ambient mode (rain/cafe/vinyl).
+- **Local Growth Snapshot** shows invite/share/export/reward counts to track momentum without external analytics.
+
 ## Add Wallpapers
 
 - Format: WebP

@@ -1,0 +1,84 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "title": "Attack on Titan Eren Yeager Figure",
+      "category": "figures",
+      "price": "$24.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EAttack on Titan%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EEren Figure%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=attack+on+titan+eren+figure&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 2,
+      "title": "Demon Slayer Tanjiro Poster",
+      "category": "posters",
+      "price": "$9.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EDemon Slayer%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3ETanjiro Poster%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=demon+slayer+tanjiro+poster&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 3,
+      "title": "Naruto Sasuke Action Figure",
+      "category": "figures",
+      "price": "$19.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3ENaruto Shippuden%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3ESasuke Figure%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=naruto+sasuke+figure&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 4,
+      "title": "One Piece Luffy Merchandise Set",
+      "category": "merch",
+      "price": "$34.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EOne Piece%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3ELuffy Set%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=one+piece+luffy+merchandise&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 5,
+      "title": "My Hero Academia Deku Hoodie",
+      "category": "apparel",
+      "price": "$44.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EMy Hero Academia%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EDeku Hoodie%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=my+hero+academia+deku+hoodie&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 6,
+      "title": "Jujutsu Kaisen Yuji Pop Figure",
+      "category": "figures",
+      "price": "$14.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EJujutsu Kaisen%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EYuji Pop%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=jujutsu+kaisen+yuji+pop&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 7,
+      "title": "Sword Art Online Asuna Manga",
+      "category": "manga",
+      "price": "$12.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3ESword Art Online%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EAsuna Manga%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=sword+art+online+manga&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 8,
+      "title": "Tokyo Ghoul Kaneki Collector Box",
+      "category": "collectors",
+      "price": "$49.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3ETokyo Ghoul%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EKaneki Box%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=tokyo+ghoul+kaneki+collector&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 9,
+      "title": "Dragon Ball Z Goku T-Shirt",
+      "category": "apparel",
+      "price": "$19.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EDragon Ball Z%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EGoku T-Shirt%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=dragon+ball+z+goku+tshirt&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    },
+    {
+      "id": 10,
+      "title": "Neon Genesis Evangelion Blu-ray",
+      "category": "media",
+      "price": "$39.99",
+      "image": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Crect fill='%231a1a2e' width='150' height='150'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%23ff6b8a' text-anchor='middle' dominant-baseline='middle'%3EEvangelion%3C/text%3E%3Ctext x='50%25' y='70%25' font-size='12' fill='%23888' text-anchor='middle' dominant-baseline='middle'%3EBlu-ray Set%3C/text%3E%3C/svg%3E",
+      "affiliateLink": "https://amazon.com/s?k=evangelion+blu+ray&tag=YOUR_AMAZON_AFFILIATE_TAG"
+    }
+  ]
+}
