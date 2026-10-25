@@ -10,6 +10,7 @@ import { formatTime, greetingAt } from '../lib/clock.mjs';
 import { storageGet, storageSet } from '../lib/platform.mjs';
 import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
 import { streakFromMetrics, MERCH_HIDDEN_KEY } from '../lib/growth.mjs';
+import { WALLPAPER_CATEGORIES } from '../hooks/useNekosWallpaper';
 import './StudioPanel.css';
 import './HabitDock.css';
 import './Rewards.css';
@@ -25,6 +26,14 @@ const themeOptions = [
   { value: 'fighting', label: 'Fighting' }
 ];
 
+const CATEGORY_LABELS = {
+  any: 'Any type',
+  waifu: 'Waifu',
+  neko: 'Neko',
+  kitsune: 'Kitsune',
+  husbando: 'Husbando'
+};
+
 const WanoArcDashboard = ({
   customEnabled,
   isPinned,
@@ -32,6 +41,8 @@ const WanoArcDashboard = ({
   onRemoveCustom,
   onShuffle,
   onPin,
+  wallpaperCategory,
+  onCategoryChange,
   themeMode,
   onThemeChange,
   rewards = [],
@@ -72,6 +83,14 @@ const WanoArcDashboard = ({
     window.addEventListener('animetab:clock-format', handler);
     return () => window.removeEventListener('animetab:clock-format', handler);
   }, []);
+
+  // ...and the mood/theme.
+  useEffect(() => {
+    if (!onThemeChange) return undefined;
+    const handler = (e) => onThemeChange(e.detail);
+    window.addEventListener('animetab:theme', handler);
+    return () => window.removeEventListener('animetab:theme', handler);
+  }, [onThemeChange]);
 
   useEffect(() => {
     const loadQuote = async () => {
@@ -225,12 +244,26 @@ const WanoArcDashboard = ({
                 </button>
               </div>
               <div className="studio-row">
+                <label className="studio-label" htmlFor="studio-type">Type</label>
+                <select
+                  id="studio-type"
+                  className="studio-select"
+                  value={wallpaperCategory || 'any'}
+                  onChange={(e) => onCategoryChange && onCategoryChange(e.target.value)}
+                  title="Wallpaper category from nekos.best"
+                >
+                  {WALLPAPER_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="studio-row">
                 <label className="studio-label" htmlFor="studio-mood">Mood</label>
                 <select
                   id="studio-mood"
                   className="studio-select"
                   value={theme}
-                  onChange={(e) => onThemeChange && onThemeChange(e.target.value)}
+                  onChange={(e) => onThemeChange && onThemeChange(e.target.value, { userAction: true })}
                 >
                   {themeOptions.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
@@ -265,7 +298,7 @@ const WanoArcDashboard = ({
                 <div className="studio-metrics">
                   <strong>Your week (local only):</strong><br />
                   {studioMetrics.weekTotal || 0} fresh tabs ·
-                  {' '}{studioMetrics.week?.affiliate_clicks || 0} merch clicks ·
+                  {' '}{studioMetrics.week?.affiliate_click || 0} merch clicks ·
                   {' '}{studioMetrics.week?.wallpaper_upload || 0} uploads
                 </div>
               )}

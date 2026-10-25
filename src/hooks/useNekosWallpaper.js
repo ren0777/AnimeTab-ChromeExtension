@@ -7,11 +7,20 @@ import { storageGet, storageSet } from '../lib/platform.mjs';
 const STORAGE_KEY = 'nekosWallpaperUrl';
 const ALT_STORAGE_KEY = 'anime_bg_url';
 const THEME_KEY = 'animeThemeMode';
+const MOOD_TOUCHED_KEY = 'moodTouched'; // user picked a mood manually → stop auto-detecting
 const PINNED_URL_KEY = 'wallpaperPinnedUrl';
+const CATEGORY_KEY = 'wallpaperCategory';
 const CUSTOM_DATA_KEY = 'customBackgroundData';
 const CUSTOM_MIME_KEY = 'customBackgroundMime';
 const CUSTOM_ENABLED_KEY = 'customBackgroundEnabled';
 const CUSTOM_REF_KEY = 'customBackgroundRef';
+
+// Must mirror the categories the background worker knows (background.js).
+export const WALLPAPER_CATEGORIES = ['any', 'waifu', 'neko', 'kitsune', 'husbando'];
+const DEFAULT_CATEGORY = 'any';
+
+export const normalizeCategory = (value) =>
+  WALLPAPER_CATEGORIES.includes(value) ? value : DEFAULT_CATEGORY;
 
 const preloadImage = (url) =>
   new Promise((resolve, reject) => {
@@ -23,8 +32,7 @@ const preloadImage = (url) =>
 
 // Very small, fast mood detector. Draws a downsized copy of the image to a
 // canvas and computes average HSL lightness/saturation, mapping results onto
-// real themes so detection actually changes the look now (previously the
-// detected values were silently discarded by normalizeTheme).
+// real themes. Only applied when the user hasn't chosen a mood manually.
 const detectThemeFromImage = (url) =>
   new Promise((resolve) => {
     try {
@@ -121,6 +129,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
   const [customEnabled, setCustomEnabled] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const [themeMode, setThemeMode] = useState('wano');
+  const [wallpaperCategory, setWallpaperCategoryState] = useState(DEFAULT_CATEGORY);
   const objectUrlRef = useRef(null);
 
   const revokeObjectUrl = () => {
@@ -140,10 +149,12 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
     return objUrl;
   }, []);
 
-  const updateThemeMode = useCallback(async (nextTheme) => {
+  const updateThemeMode = useCallback(async (nextTheme, { userAction = false } = {}) => {
     const normalized = normalizeTheme(nextTheme);
     setThemeMode(normalized);
-    await storageSet({ [THEME_KEY]: normalized });
+    await storageSet(userAction
+      ? { [THEME_KEY]: normalized, [MOOD_TOUCHED_KEY]: '1' }
+      : { [THEME_KEY]: normalized });
   }, []);
 
   const applyRemoteWallpaper = useCallback(async (url) => {
@@ -153,16 +164,27 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
     setWallpaperUrl(url);
   }, []);
 
-  const loadWallpaper = useCallback(async (forceNew = false) => {
+  /**
+   * Wallpaper loader.
+   * - instant:    show the cached/stored wallpaper first (no spinner), then
+   *               still refresh in the background so the next paint crossfades
+   *               to a fresh image. Kills the blank/white wait on new tabs.
+   * - forceNew:   skip the cache entirely and fetch a fresh image (Shuffle).
+   */
+  const loadWallpaper = useCallback(async ({ forceNew = false, instant = false } = {}) => {
     try {
       setLoading(true);
       setError(null);
 
       const stored = await storageGet([
         CUSTOM_ENABLED_KEY, CUSTOM_REF_KEY, CUSTOM_MIME_KEY,
-        STORAGE_KEY, ALT_STORAGE_KEY, THEME_KEY, PINNED_URL_KEY
+        STORAGE_KEY, ALT_STORAGE_KEY, THEME_KEY, MOOD_TOUCHED_KEY,
+        PINNED_URL_KEY, CATEGORY_KEY
       ]);
       setThemeMode(normalizeTheme(stored[THEME_KEY]));
+      setWallpaperCategoryState(normalizeCategory(stored[CATEGORY_KEY]));
+      const moodTouched = Boolean(stored[MOOD_TOUCHED_KEY]);
+      const category = normalizeCategory(stored[CATEGORY_KEY]);
 
       // Custom uploads (kept in IndexedDB) always win.
       if (stored[CUSTOM_ENABLED_KEY] && stored[CUSTOM_REF_KEY]) {
@@ -194,25 +216,34 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
         }
       }
 
-      // Without a forced refresh, try the previously fetched URL first.
-      if (!forceNew) {
+      // Show the cached wallpaper immediately (unless this is an explicit
+      // shuffle that should surprise us).
+      let shownCached = false;
+      if (instant || !forceNew) {
         for (const candidate of [stored[ALT_STORAGE_KEY], stored[STORAGE_KEY]]) {
           if (!candidate || typeof candidate !== 'string') continue;
-          if (candidate.startsWith('indexeddb://')) continue; // handled above via CUSTOM_REF
+          if (candidate.startsWith('indexeddb://')) continue; // handled via CUSTOM_REF
           try {
             await preloadImage(candidate);
             revokeObjectUrl();
             setWallpaperUrl(candidate);
+            shownCached = true;
             setCustomEnabled(false);
             setLoading(false);
-            return;
+            break;
           } catch { /* try next */ }
         }
       }
 
-      // Fresh wallpaper from the background service worker.
+      if (!forceNew && shownCached && !instant) {
+        return; // old behavior: cached is enough when nothing forced a refresh
+      }
+
+      // Fresh wallpaper from the background service worker. While we already
+      // show a cached image, keep the spinner off during the refresh.
+      if (!shownCached) setLoading(true);
       const url = await new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ type: 'FETCH_WALLPAPER' }, (response) => {
+        chrome.runtime.sendMessage({ type: 'FETCH_WALLPAPER', category }, (response) => {
           if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
           else if (response?.error) reject(new Error(response.error));
           else resolve(response?.url);
@@ -224,9 +255,11 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
       setCustomEnabled(false);
       setIsPinned(false);
 
-      // Best-effort mood detection maps onto a real theme now.
-      const detected = await detectThemeFromImage(url);
-      if (detected) await updateThemeMode(detected);
+      // Best-effort mood detection — only while the user hasn't picked one.
+      if (!moodTouched) {
+        const detected = await detectThemeFromImage(url);
+        if (detected) await updateThemeMode(detected);
+      }
     } catch (err) {
       setError(err?.message || String(err));
     } finally {
@@ -236,7 +269,7 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
 
   const shuffleWallpaper = useCallback(async () => {
     await storageSet({ [PINNED_URL_KEY]: '' });
-    await loadWallpaper(true);
+    await loadWallpaper({ forceNew: true });
     await analytics.track(EVENT_TYPES.WALLPAPER_SHUFFLE);
   }, [loadWallpaper, analytics]);
 
@@ -247,10 +280,17 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
     } else {
       await storageSet({ [PINNED_URL_KEY]: '' });
       setIsPinned(false);
-      if (!pinned) await loadWallpaper(true);
+      if (!pinned) await loadWallpaper({ forceNew: true });
     }
     await analytics.track(EVENT_TYPES.WALLPAPER_PIN);
   }, [wallpaperUrl, loadWallpaper, analytics]);
+
+  const setWallpaperCategory = useCallback(async (nextCategory) => {
+    const normalized = normalizeCategory(nextCategory);
+    setWallpaperCategoryState(normalized);
+    await storageSet({ [CATEGORY_KEY]: normalized });
+    await loadWallpaper({ forceNew: true }); // show a matching wallpaper right away
+  }, [loadWallpaper]);
 
   const uploadCustomWallpaper = useCallback(async (file) => {
     if (!file || (!file.type.startsWith('image/') && !file.type.startsWith('video/'))) {
@@ -280,10 +320,10 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
         [STORAGE_KEY]: `indexeddb://${refKey}`,
         [ALT_STORAGE_KEY]: `indexeddb://${refKey}`,
         [THEME_KEY]: themeMode,
+        [MOOD_TOUCHED_KEY]: '1',
         [PINNED_URL_KEY]: '',
         [CUSTOM_DATA_KEY]: ''
       });
-      await storageSet({ [PINNED_URL_KEY]: '' });
       setBlobWallpaper(blob);
       setCustomEnabled(true);
       setIsPinned(false);
@@ -307,21 +347,23 @@ export const useNekosWallpaper = (analytics = createAnalytics({ get: async () =>
       });
       setCustomEnabled(false);
       setWallpaperUrl(null);
-      await updateThemeMode('wano');
-      await loadWallpaper(true);
+      await updateThemeMode('wano', { userAction: true });
+      await loadWallpaper({ forceNew: true });
     } catch { /* ignore */ }
   }, [loadWallpaper, updateThemeMode]);
 
   useEffect(() => {
-    loadWallpaper(true);
+    // Instant paint from cache, then refresh to a fresh image via crossfade.
+    loadWallpaper({ instant: true });
     return () => revokeObjectUrl();
   }, [loadWallpaper]);
 
   return {
-    wallpaperUrl, loading, error, customEnabled, isPinned, themeMode,
-    refreshWallpaper: () => loadWallpaper(true),
+    wallpaperUrl, loading, error, customEnabled, isPinned, themeMode, wallpaperCategory,
+    refreshWallpaper: () => loadWallpaper({ forceNew: true }),
     shuffleWallpaper,
     pinWallpaper,
+    setWallpaperCategory,
     uploadCustomWallpaper,
     removeCustomWallpaper,
     updateThemeMode

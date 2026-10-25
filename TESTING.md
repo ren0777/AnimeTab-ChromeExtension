@@ -7,10 +7,11 @@
 
 ## Wallpaper & themes
 
-- [ ] Tabs open with a random wallpaper (or bundled fallback if offline)
+- [ ] New tab paints the cached wallpaper instantly (no blank wait), then crossfades to a fresh one
+- [ ] Studio → Type select (dark popup, not white): choosing Waifu/Neko/Kitsune/Husbando fetches a matching image and persists across tabs; "Any type" restores the random mix
 - [ ] Wallpaper Studio: Shuffle fetches a new image; Pin keeps the same image across tabs; Unpin restores random
 - [ ] Upload an image (and a video); Reload tab → custom background returns; Reset reverts
-- [ ] Mood picker changes palette; light wallpaper auto-lands on Cute, dark on LoFi (new fetches only)
+- [ ] Mood picker changes palette and stops auto-detection from overwriting it on later tabs; light wallpaper auto-lands on Cute, dark on LoFi only while mood never manually chosen
 
 ## Clock, search, quote
 

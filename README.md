@@ -6,7 +6,7 @@ Everything runs client-side. User data stays local: preferences and anonymous fe
 
 ## Features
 
-- **Wallpapers** – random from the nekos.best API via the background service worker; shuffle or pin the current image from the Wallpaper Studio; upload your own image/video (kept in IndexedDB).
+- **Wallpapers** – random from the nekos.best API via the background service worker; **Type selector** (Waifu / Neko / Kitsune / Husbando / Any) controls the category; shuffle or pin the current image from the Wallpaper Studio; upload your own image/video (kept in IndexedDB). New tabs paint the cached wallpaper instantly, then crossfade to a fresh one.
 - **Mood themes** – Wano / LoFi / Cute / Romantic / Fighting; auto-detected from each wallpaper's palette (light-pastel → Cute, dark-vibrant → LoFi) or set manually.
 - **Clock & greeting** – 24h or 12h format, hourly Japanese greeting (おはよう / こんにちは / こんばんは / おやすみ).
 - **Search bar** – engine picker (Google, DuckDuckGo, YouTube, AniList), autofocus, persists your choice.

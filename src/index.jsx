@@ -10,7 +10,11 @@ import { storageGet, storageSet } from './lib/platform.mjs';
 import { GROWTH_KEY, unlockedRewards } from './lib/growth.mjs';
 
 // One shared, fully-local metrics store (chrome.storage only — never networked).
-const analytics = createAnalytics({ get: storageGet, set: storageSet });
+// createAnalytics expects get(key) → value and set(key, value).
+const analytics = createAnalytics({
+  get: async (key) => (await storageGet([key]))[key],
+  set: (key, value) => storageSet({ [key]: value })
+});
 
 const App = () => {
   const {
@@ -21,6 +25,8 @@ const App = () => {
     removeCustomWallpaper,
     shuffleWallpaper,
     pinWallpaper,
+    wallpaperCategory,
+    setWallpaperCategory,
     themeMode,
     updateThemeMode
   } = useNekosWallpaper(analytics);
@@ -77,6 +83,8 @@ const App = () => {
           onRemoveCustom={removeCustomWallpaper}
           onShuffle={shuffleWallpaper}
           onPin={pinWallpaper}
+          wallpaperCategory={wallpaperCategory}
+          onCategoryChange={setWallpaperCategory}
           themeMode={themeMode}
           onThemeChange={updateThemeMode}
           rewards={rewards}

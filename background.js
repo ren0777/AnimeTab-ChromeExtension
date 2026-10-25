@@ -4,6 +4,10 @@
 
 const CATEGORIES = ['neko', 'waifu', 'kitsune', 'husbando'];
 
+// A specific category ("waifu", ...) narrows the pool; anything else = any.
+const categoryPool = (value) =>
+  CATEGORIES.includes(value) ? [value] : CATEGORIES;
+
 // Bundled images used when the API is unreachable, rate-limited, or blocks us.
 const FALLBACK_WALLPAPERS = [
   'assets/fallback/fallback1.jpg',
@@ -134,7 +138,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   (async () => {
     // Try a random category first, then one different category as a retry.
-    const categories = [...CATEGORIES].sort(() => Math.random() - 0.5).slice(0, MAX_ATTEMPTS);
+    // The user-selected type (Waifu/Neko/…) narrows the pool to one category.
+    const pool = categoryPool(request.category);
+    const categories = [...pool].sort(() => Math.random() - 0.5).slice(0, MAX_ATTEMPTS);
     let lastError = null;
 
     for (const category of categories) {

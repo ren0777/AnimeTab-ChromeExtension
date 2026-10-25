@@ -20,6 +20,10 @@ export default function SearchBar() {
       setEngine(normalizeEngine(stored));
     })();
     inputRef.current?.focus();
+    // Setup import (Invite Hub) can change the engine from anywhere in the app.
+    const onEngine = (e) => setEngine(normalizeEngine(e.detail));
+    window.addEventListener('animetab:search-engine', onEngine);
+    return () => window.removeEventListener('animetab:search-engine', onEngine);
   }, []);
 
   const changeEngine = async (id) => {

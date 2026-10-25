@@ -1,5 +1,7 @@
 /* Styles layered on top of .search-container in WanoArcDashboard.css */
 
+:root { color-scheme: dark; } /* dark native select popup */
+
 .engine-select {
   flex-shrink: 0;
   margin-left: 6px;

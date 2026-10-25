@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  DEFAULT_LINKS, LINKS_STORAGE_KEY, normalizeLinkList, moveLink
+  DEFAULT_LINKS, LINKS_STORAGE_KEY, normalizeLinkList, moveLink, prepareUrl
 } from '../lib/links.mjs';
 import { storageGet, storageSet } from '../lib/platform.mjs';
 import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
@@ -56,7 +56,7 @@ export default function QuickLinks({ analytics = createAnalytics({ get: async ()
   const addLink = async (e) => {
     e.preventDefault();
     const name = draft.name.trim();
-    const url = draft.url.trim();
+    const url = prepareUrl(draft.url);
     if (!url) return;
     const next = [...links, { name: name || url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0], url, icon: '🌐', gradient: 'linear-gradient(135deg,#ff6b8a,#3f51b5)' }]
       .map((item, i) => ({ ...item, id: i + 1 }));

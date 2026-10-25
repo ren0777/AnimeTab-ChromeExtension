@@ -11,6 +11,8 @@ import './InviteHub.css';
 
 const LINKS_EVENT = 'animetab:links-changed';
 const CLOCK_EVENT = 'animetab:clock-format';
+const ENGINE_EVENT = 'animetab:search-engine';
+const THEME_EVENT = 'animetab:theme';
 
 /**
  * Invite hub: one-tap sharing (all local), cosmetic reward unlocks at
@@ -84,6 +86,8 @@ export default function InviteHub({ analytics = createAnalytics({ get: async () 
 
     if (decoded.links.length) window.dispatchEvent(new CustomEvent(LINKS_EVENT));
     if (prefs.clockFormat) window.dispatchEvent(new CustomEvent(CLOCK_EVENT, { detail: prefs.clockFormat }));
+    if (prefs.searchEngine) window.dispatchEvent(new CustomEvent(ENGINE_EVENT, { detail: prefs.searchEngine }));
+    if (prefs.themeMode) window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: prefs.themeMode }));
     if (analytics) await analytics.track(EVENT_TYPES.SETUP_IMPORT);
     setApplyMsg('Setup applied ✨');
   };

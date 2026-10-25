@@ -1,5 +1,7 @@
 /* Wallpaper Studio panel (previously inline-styled in JSX). */
 
+:root { color-scheme: dark; } /* dark native select popup */
+
 .corner-studio-btn {
   position: fixed;
   top: 16px;
