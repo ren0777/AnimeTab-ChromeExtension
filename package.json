@@ -23,7 +23,7 @@
     "one-piece"
   ],
   "author": "AnimeTab Team",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "dependencies": {
     "framer-motion": "^10.16.4",
     "prop-types": "^15.8.1",

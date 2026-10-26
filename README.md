@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/version-1.6.3-blue" alt="Version 1.6.3">
   <img src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white" alt="Manifest V3">
   <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React 18">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-proprietary-red" alt="Proprietary license"></a>
 </p>
 
 ---
@@ -126,4 +126,6 @@ Wallpapers come from [nekos.best](https://nekos.best), [wallhaven](https://wallh
 
 ## License
 
-Released under the [MIT License](LICENSE).
+Copyright © 2026 AnimeTab Team. All rights reserved.
+
+The source is published for viewing only. You may not copy, modify, redistribute or republish this code or any part of it (including as another extension) without written permission. See [LICENSE](LICENSE).
