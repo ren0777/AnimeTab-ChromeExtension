@@ -48,3 +48,11 @@ test('analytics survives storage failures', async () => {
   const snap = await a.snapshot();
   assert.deepEqual(snap.totals, {});
 });
+
+test('concurrent tracks are serialized — none of the burst is lost', async () => {
+  const store = memoryStore();
+  const a = createAnalytics(store);
+  await Promise.all(Array.from({ length: 40 }, () => a.track(EVENT_TYPES.TAB_OPEN)));
+  const snap = await a.snapshot();
+  assert.equal(snap.totals[EVENT_TYPES.TAB_OPEN], 40);
+});

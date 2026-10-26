@@ -28,17 +28,26 @@ export function createAnalytics({ get, set }) {
   const read = async () => (await get(METRICS_KEY)) || { totals: {}, days: {} };
   const write = (m) => set(METRICS_KEY, m);
 
+  // Serialize track() calls: analytics does read-modify-write on one key, and
+  // parallel invocations (e.g. bursts of clicks) would otherwise lose counts.
+  let chain = Promise.resolve();
+
   return {
-    async track(event) {
-      try {
-        const m = await read();
-        const day = dayKeyOf(new Date());
-        const totals = { ...m.totals, [event]: (m.totals?.[event] || 0) + 1 };
-        const days = { ...(m.days || {}), [day]: { ...(m.days?.[day] || {}), [event]: ((m.days?.[day]?.[event]) || 0) + 1 } };
-        const keys = Object.keys(days).sort();
-        while (keys.length > MAX_DAYS) delete days[keys.shift()];
-        await write({ totals, days });
-      } catch { /* metrics must never break the UI */ }
+    track(event) {
+      chain = chain
+        .then(async () => {
+          try {
+            const m = await read();
+            const day = dayKeyOf(new Date());
+            const totals = { ...m.totals, [event]: (m.totals?.[event] || 0) + 1 };
+            const days = { ...(m.days || {}), [day]: { ...(m.days?.[day] || {}), [event]: ((m.days?.[day]?.[event]) || 0) + 1 } };
+            const keys = Object.keys(days).sort();
+            while (keys.length > MAX_DAYS) delete days[keys.shift()];
+            await write({ totals, days });
+          } catch { /* metrics must never break the UI */ }
+        })
+        .catch(() => { /* keep the chain alive even if a write rejects */ });
+      return chain;
     },
     async snapshot() {
       let m;

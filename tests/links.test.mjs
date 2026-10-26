@@ -8,6 +8,13 @@ test('prepareUrl adds https when scheme is missing', () => {
   assert.equal(prepareUrl('  '), '');
 });
 
+test('prepareUrl rejects unparseable results (never persisted as hrefs)', () => {
+  assert.equal(prepareUrl('https://'), '');
+  assert.equal(prepareUrl('://nope'), '');
+  assert.equal(prepareUrl('https://  .com'), ''); // invalid host chars
+  assert.equal(prepareUrl('https://ok.io/a b'), 'https://ok.io/a b'); // parsed ok, encoded at use site
+});
+
 test('normalizeLinkList defaults names from hostname and removes empties', () => {
   const out = normalizeLinkList([{ url: 'mirror.xyz/' }, { name: ' ', url: '' }, { name: 'CAL', url: 'calendar.google.com' }]);
   assert.equal(out.length, 2);

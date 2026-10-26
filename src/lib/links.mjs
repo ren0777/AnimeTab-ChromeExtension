@@ -16,7 +16,10 @@ export const LINKS_STORAGE_KEY = 'quickLinksV1';
 export function prepareUrl(input) {
   const raw = String(input || '').trim();
   if (!raw) return '';
-  return /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
+  const candidate = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`;
+  // Reject results that don't parse — e.g. bare "https://" — so a broken
+  // href never gets persisted as a clickable tile.
+  try { new URL(candidate); return candidate; } catch { return ''; }
 }
 
 export function normalizeLink(raw, id) {
