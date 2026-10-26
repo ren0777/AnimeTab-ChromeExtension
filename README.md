@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/version-1.6.3-blue" alt="Version 1.6.3">
   <img src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white" alt="Manifest V3">
   <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React 18">
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license"></a>
 </p>
 
 ---
@@ -126,4 +126,4 @@ Wallpapers come from [nekos.best](https://nekos.best), [wallhaven](https://wallh
 
 ## License
 
-Released under the MIT License.
+Released under the [MIT License](LICENSE).
