@@ -5,8 +5,8 @@ import {
   shareUrlFor, encodeSetup, decodeSetup, SETUP_CODE_VERSION, STORE_URL
 } from '../src/lib/growth.mjs';
 
-const day = (offset, opens = 2) => {
-  const d = new Date(Date.now() - offset * 86400000);
+const buildDay = (base, offset, opens = 2) => {
+  const d = new Date(base.getTime() - offset * 86400000);
   return [d.toISOString().slice(0, 10), { tab_open: opens }];
 };
 
@@ -25,16 +25,20 @@ test('nextRewardAt reports the next threshold or null', () => {
   assert.equal(nextRewardAt(99), null);
 });
 
+// A pinned reference day keeps this test stable across UTC day rollovers
+// (fixtures must not be relative to Date.now() when `today` is fixed).
+const TODAY = new Date('2026-10-25T15:00:00Z');
+
 test('streakFromMetrics counts consecutive active days', () => {
-  const today = new Date('2026-10-25T15:00:00Z');
-  const entries = Object.fromEntries([day(0), day(1), day(2), day(4)]);
-  assert.equal(streakFromMetrics(entries, today), 3);
+  const entries = Object.fromEntries([
+    buildDay(TODAY, 0), buildDay(TODAY, 1), buildDay(TODAY, 2), buildDay(TODAY, 4)
+  ]);
+  assert.equal(streakFromMetrics(entries, TODAY), 3);
 });
 
 test('streakFromMetrics waits until today has an open', () => {
-  const today = new Date('2026-10-25T08:00:00Z');
-  const entries = Object.fromEntries([day(1), day(2)]);
-  assert.equal(streakFromMetrics(entries, today), 2);
+  const entries = Object.fromEntries([buildDay(TODAY, 1), buildDay(TODAY, 2)]);
+  assert.equal(streakFromMetrics(entries, TODAY), 2);
 });
 
 test('streakFromMetrics returns 0 for empty history', () => {
