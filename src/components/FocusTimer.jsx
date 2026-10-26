@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   FOCUS_KEY, FOCUS_COMPLETE_KEY, STALE_COMPLETION_MS, FOCUS_MINUTES_KEY,
-  normalizeFocusMinutes, startSession, normalizeSession, remainingMs, formatFocusRemaining
+  FOCUS_MINUTES_EVENT, normalizeFocusMinutes,
+  startSession, normalizeSession, remainingMs, formatFocusRemaining
 } from '../lib/focus.mjs';
 import { createAmbientEngine } from '../lib/ambient.mjs';
 import { EVENT_TYPES } from '../lib/analytics.mjs';
@@ -40,6 +41,16 @@ export default function FocusTimer({ analytics = createAnalytics({ get: async ()
     })();
   }, []);
 
+  // The Studio's Focus picker broadcasts its choice so the dock label (and
+  // the next session) update live, without remounting this component.
+  useEffect(() => {
+    const handler = (e) => {
+      if (typeof e.detail === 'number') setMinutes(normalizeFocusMinutes(e.detail));
+    };
+    window.addEventListener(FOCUS_MINUTES_EVENT, handler);
+    return () => window.removeEventListener(FOCUS_MINUTES_EVENT, handler);
+  }, []);
+
   useEffect(() => {
     if (!session) return undefined;
     const tick = () => {
@@ -65,7 +76,10 @@ export default function FocusTimer({ analytics = createAnalytics({ get: async ()
   }, [session, analytics]);
 
   const start = async () => {
-    const length = normalizeFocusMinutes(minutes);
+    // Live with last-second Studio changes too (belt & suspenders: the event
+    // already updates the label — storage stays the source of truth).
+    const stored = (await storageGet([FOCUS_MINUTES_KEY]))[FOCUS_MINUTES_KEY];
+    const length = normalizeFocusMinutes(stored ?? minutes);
     const next = startSession(Date.now(), length);
     setSession(next);
     await storageSet({ [FOCUS_KEY]: next });

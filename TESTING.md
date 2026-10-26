@@ -37,7 +37,7 @@
 ## Habits & growth
 
 - [ ] 🔥 streak pill appears after two consecutive days of use (manipulate a `days` bucket to test)
-- [ ] Focus: length selectable in Studio (15/25/45/60); starts with chosen length, ticks in all tabs, cancel works; letting it finish chimes + toast
+- [ ] Focus: length selectable in Studio (15/25/45/60) — the dock button label updates IMMEDIATELY on change; starts with chosen length, ticks in all tabs, cancel works; letting it finish chimes + toast
 - [ ] First open shows the welcome toast (once); reload → no toast
 - [ ] Ambient button cycles 🌧️/💿/🌊/🔇 with audible generative loops; new tab stays silent but remembers mode
 - [ ] Invite hub: all six share actions increment the counter and every link carries the live store URL (`chromewebstore.google.com/detail/animetab/…`); rewards unlock at 3/5/10 (neon rain visible, quote card restyles, clock goes hologram)

@@ -11,7 +11,7 @@ import { formatTime, greetingAt } from '../lib/clock.mjs';
 import { storageGet, storageSet } from '../lib/platform.mjs';
 import { createAnalytics, EVENT_TYPES } from '../lib/analytics.mjs';
 import { streakFromMetrics, MERCH_HIDDEN_KEY } from '../lib/growth.mjs';
-import { normalizeFocusMinutes, FOCUS_MINUTES_KEY, FOCUS_MINUTE_OPTIONS } from '../lib/focus.mjs';
+import { normalizeFocusMinutes, FOCUS_MINUTES_KEY, FOCUS_MINUTES_EVENT, FOCUS_MINUTE_OPTIONS } from '../lib/focus.mjs';
 import { WALLPAPER_CATEGORIES } from '../hooks/useNekosWallpaper';
 import { WALLPAPER_SOURCES } from '../lib/wallpaperSources.mjs';
 import './StudioPanel.css';
@@ -303,8 +303,10 @@ const WanoArcDashboard = ({
                   title="Focus timer length"
                   value={String(focusMinutes)}
                   onChange={async (v) => {
-                    setFocusMinutes(normalizeFocusMinutes(v));
-                    await storageSet({ [FOCUS_MINUTES_KEY]: normalizeFocusMinutes(v) });
+                    const next = normalizeFocusMinutes(v);
+                    setFocusMinutes(next);
+                    await storageSet({ [FOCUS_MINUTES_KEY]: next });
+                    window.dispatchEvent(new CustomEvent(FOCUS_MINUTES_EVENT, { detail: next }));
                   }}
                   options={FOCUS_MINUTE_OPTIONS.map((m) => ({ value: String(m), label: `${m} minutes` }))}
                 />

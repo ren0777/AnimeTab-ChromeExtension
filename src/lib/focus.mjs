@@ -5,6 +5,7 @@
 export const FOCUS_KEY = 'focusSession'; // { endAt, startedAt, minutes } | null
 export const FOCUS_COMPLETE_KEY = 'focusCompleteAt'; // ms timestamp
 export const FOCUS_MINUTES_KEY = 'focusMinutes';
+export const FOCUS_MINUTES_EVENT = 'animetab:focus-minutes'; // detail: number
 export const FOCUS_MINUTE_OPTIONS = [15, 25, 45, 60];
 export const DEFAULT_MINUTES = 25;
 export const STALE_COMPLETION_MS = 5 * 60 * 1000;
