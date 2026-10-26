@@ -1,39 +1,129 @@
-# AnimeTab
+<p align="center">
+  <img src="assets/icon128.png" alt="AnimeTab logo" width="96" height="96">
+</p>
 
-AnimeTab is a Manifest V3 Chrome extension that turns your new tab into an anime dashboard: rotating wallpapers (nekos.best with bundled fallbacks), a live clock with Japanese greetings, a daily quote, an editable quick-link grid, an "Airing Soon" countdown from the AniList API, and a curated affiliate merch card.
+<h1 align="center">AnimeTab</h1>
 
-Everything runs client-side. User data stays local: preferences and anonymous feature counters live in `chrome.storage.local`; uploaded backgrounds live in the extension's IndexedDB.
+<p align="center">
+  An anime-themed new tab page for Chrome with wallpapers, a clock, daily quotes, airing countdowns and focus tools.
+</p>
+
+<p align="center">
+  <a href="https://github.com/ren0777/AnimeTab-ChromeExtension/actions/workflows/build.yml"><img src="https://github.com/ren0777/AnimeTab-ChromeExtension/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
+  <img src="https://img.shields.io/badge/version-1.6.3-blue" alt="Version 1.6.3">
+  <img src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white" alt="Manifest V3">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React 18">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license">
+</p>
+
+---
+
+## Overview
+
+AnimeTab is a Manifest V3 Chrome extension that replaces the default new tab page with an anime dashboard. It shows a rotating wallpaper, a live clock with Japanese greetings, a quote of the day, a grid of quick links you can edit, and a countdown to the next episodes of currently airing shows (from AniList).
+
+**Privacy:** AnimeTab has no accounts, no tracking and no third-party analytics. Preferences and anonymous feature counters are stored in `chrome.storage.local`. Backgrounds you upload are kept in the extension's IndexedDB. See [privacy.html](privacy.html) for the full policy.
 
 ## Features
 
-- **Wallpapers** – four keyless sources: **Anime portraits** (nekos.best, with a Type selector: Waifu/Neko/Kitsune/Husbando/Any), **Anime scenes** (wallhaven anime category, full-resolution art), **Anime landscapes** (wallhaven, tag-precise scenery filter), and **Photo of the day** (Bing daily archive — genuine landscape photography). Requests are SFW-filtered; shuffle, pin, or **save the current image to disk**; upload your own media (kept in IndexedDB). New tabs paint the cached wallpaper instantly, then crossfade to a fresh one; if a provider fails, the chain falls through sources until one works.
-- **Mood themes** – Wano / LoFi / Cute / Romantic / Fighting; auto-detected from each wallpaper's palette (light-pastel → Cute, dark-vibrant → LoFi) or set manually.
-- **Clock & greeting** – 24h or 12h format, hourly Japanese greeting (おはよう / こんにちは / こんばんは / おやすみ).
-- **Search bar** – engine picker (Google, DuckDuckGo, YouTube, AniList), autofocus, persists your choice.
-- **Quick Links** – add / remove / reorder tiles; favicons fetched from Google's favicon service; custom links persist locally.
-- **Word of the Day** – deterministic daily quote from `quotes.json`.
-- **Airing Soon + watchlist** – popular current-season shows *plus* your personally pinned shows (AniList search, add/remove inline, 12 max); yours always sit above the seasonal list.
-- **Focus timer** – length picker (15/25/45/60 min), persisted and shared across tabs; completion chime + toast.
-- **Ambient sound** – synthesized rain / vinyl / ocean (WebAudio, no audio files). Off by default; selection remembered, never auto-plays.
-- **Daily streak** – 🔥 pill for consecutive days with a tab open.
-- **Invite hub** – one-tap share (X, Telegram, WhatsApp, Reddit, Discord, copy) with cosmetic unlocks at 3/5/10 invite actions: neon rain overlay, night-drive quote mode, hologram clock skin.
-- **Share my setup** – export/import a setup code (links + theme + engine + clock format) so friends can clone your vibe.
-- **Merch card** – hourly auto-rotation plus manual "→"; hide/show from the Wallpaper Studio; disclosure shown on the card; opens Amazon in a new tab only on click.
-- **Local metrics** – anonymous counters (fresh tabs, merch clicks, uploads, focus, invites) visible in the Wallpaper Studio. No third-party analytics; no network telemetry.
+### Wallpapers
+- **Four sources that need no API key:**
+  - **Anime portraits** from nekos.best. You can pick a type: Waifu, Neko, Kitsune, Husbando or Any.
+  - **Anime scenes** from wallhaven's anime category, at full resolution.
+  - **Anime landscapes** from wallhaven, filtered by scenery tags.
+  - **Photo of the day** from Bing's daily archive.
+- **Instant paint:** each new tab shows the cached wallpaper right away, then crossfades to a fresh one.
+- **Fallback chain:** if a source fails, AnimeTab tries the next one. If they all fail, it uses wallpapers bundled with the extension.
+- **Controls:** you can shuffle, pin the current image, save it to disk or upload your own. All requests are SFW-filtered.
 
-## Monetization setup
+### Personalization
+- **Mood themes:** Wano, LoFi, Cute, Romantic and Fighting. AnimeTab picks one from the wallpaper's colors, or you can set it yourself.
+- **Clock and greeting:** 12-hour or 24-hour time, with a greeting that changes through the day (おはよう / こんにちは / こんばんは / おやすみ).
+- **Search bar:** choose Google, DuckDuckGo, YouTube or AniList. Your choice is remembered.
+- **Quick links:** add, remove and reorder tiles. Favicons are fetched automatically.
+- **Share my setup:** export your links, theme, search engine and clock format as a code that friends can import.
 
-`merch.json` contains `affiliateTag: ""`. Add your Amazon Associates tag there — links then get `&tag=<your-tag>` appended (links work without it). The affiliate disclosure is embedded in the card and covered in `privacy.html`.
+### Anime and productivity
+- **Airing Soon and watchlist:** countdowns for popular shows this season, plus up to 12 shows you pin yourself (searched on AniList).
+- **Focus timer:** 15, 25, 45 or 60 minutes. It keeps running across tabs and plays a chime when it finishes.
+- **Ambient sound:** rain, vinyl and ocean sounds generated with the Web Audio API (no audio files). It is off by default and never starts on its own.
+- **Daily streak:** counts the consecutive days you've opened a tab.
+- **Quote of the day:** a new quote each day from a curated list.
+
+### Community
+- **Invite hub:** one-tap sharing to X, Telegram, WhatsApp, Reddit and Discord. Sharing unlocks cosmetic extras: a neon rain overlay, a night-drive quote mode and a hologram clock skin.
+- **Merch card:** curated anime merchandise with an affiliate disclosure on the card. Links open only when you click them, and you can hide the card.
+
+## Installation
+
+### From source
+
+```bash
+git clone https://github.com/ren0777/AnimeTab-ChromeExtension.git
+cd AnimeTab-ChromeExtension
+npm install
+npm run build
+```
+
+Then load it in Chrome:
+
+1. Open `chrome://extensions/`.
+2. Turn on **Developer mode**.
+3. Click **Load unpacked** and select the project folder.
+4. Open a new tab.
 
 ## Development
 
-```bash
-npm install
-npm run dev        # webpack watch mode
-npm test           # node:test unit tests (pure logic in src/lib)
-npm run lint       # eslint
-npm run build      # production bundle → dist/
-npm run package    # store zip → release/animetab-v1.4.1.zip
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Rebuild automatically on changes (webpack watch mode) |
+| `npm run build` | Build the production bundle into `dist/` |
+| `npm test` | Run the unit tests (`node:test`) |
+| `npm run lint` | Run ESLint over `src/` and `tests/` |
+| `npm run verify` | Run lint, tests and build together |
+| `npm run package` | Build the Chrome Web Store zip into `release/` |
+| `npm run release [minor]` | Bump the version, run all checks, package, commit and tag |
+
+**Tech stack:** React 18, Framer Motion and webpack 5, with a Manifest V3 service worker.
+
+CI runs lint, tests, the build and packaging on every push and pull request. The store zip is uploaded as a build artifact.
+
+### Project structure
+
+```
+├── manifest.json      # Extension manifest (MV3)
+├── background.js      # Service worker
+├── newtab.html        # New tab page (loads dist/bundle.js)
+├── src/               # React app and pure logic modules (src/lib)
+├── tests/             # Unit tests
+├── assets/            # Icons, bundled fonts, fallback wallpapers
+├── scripts/           # Packaging, release, icon and font tooling
+├── quotes.json        # Quote of the day data
+└── merch.json         # Merch card catalog
 ```
 
-See `DEV-README.md` for architecture and `TESTING.md` for the QA checklist.
+## Configuration
+
+To earn affiliate commission on the merch card, set your Amazon Associates tag in `merch.json`:
+
+```json
+{ "affiliateTag": "your-tag-20" }
+```
+
+If the tag is empty, the links still work but are not tagged.
+
+## Documentation
+
+- [DEV-README.md](DEV-README.md): architecture and the release process
+- [TESTING.md](TESTING.md): manual QA checklist
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md): common problems and fixes
+- [CHANGELOG.md](CHANGELOG.md): release history
+- [privacy.html](privacy.html): privacy policy
+
+## Credits
+
+Wallpapers come from [nekos.best](https://nekos.best), [wallhaven](https://wallhaven.cc) and [Bing](https://www.bing.com). Airing schedules come from the [AniList API](https://anilist.co). All artwork belongs to its respective creators.
+
+## License
+
+Released under the MIT License.
