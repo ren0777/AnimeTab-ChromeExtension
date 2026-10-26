@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AnimeTab",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "Beautiful anime wallpapers, clock, daily quotes, airing countdowns, and curated merch every time you open a new tab.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
